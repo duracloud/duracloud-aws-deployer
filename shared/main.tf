@@ -53,6 +53,17 @@ resource "aws_subnet" "duracloud_subnet_a" {
   }
 }
 
+resource "aws_subnet" "duracloud_subnet_b" {
+
+ vpc_id            = aws_vpc.duracloud.id
+ cidr_block        = "10.0.1.0/24"
+ availability_zone = "${var.aws_region}b"
+
+ tags = {
+    Name = "${var.stack_name}-subnet-b"
+  }
+}
+
 resource "aws_route_table" "duracloud" {
 
   vpc_id = aws_vpc.duracloud.id
@@ -81,5 +92,63 @@ resource "aws_internet_gateway" "duracloud" {
 
   tags = {
     Name = "${var.stack_name}-internet-gateway"
+  }
+}
+
+
+resource "aws_db_subnet_group" "duracloud_db_subnet_group" {
+
+  name       = "duracloud-${var.stack_name}-db-subnet-group"
+  subnet_ids = [aws_subnet.duracloud_subnet_a.id, aws_subnet.duracloud_subnet_b.id]
+
+  tags = {
+    Name = "${var.stack_name}-db-subnet-group"
+  }
+}
+
+resource "aws_security_group" "duracloud_database" {
+
+  vpc_id = aws_vpc.duracloud.id
+  name   = "duracloud-${var.stack_name}-db-sg"
+
+  ingress {
+    cidr_blocks = ["10.0.0.0/24"]
+    from_port   = 3306 
+    to_port     = 3306 
+    protocol    = "tcp"
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name   = "duracloud-${var.stack_name}-db-sg"
+  }
+}
+
+resource "aws_db_instance" "duracloud" {
+
+  depends_on                = [aws_db_subnet_group.duracloud_db_subnet_group]
+  name                      = "duracloud"
+  identifier                = "duracloud-${var.stack_name}-db-instance"
+  allocated_storage         = 20
+  storage_type              = "gp2"
+  engine                    = "mysql" 
+  engine_version            = "5.7"
+  port                      = 3306 
+  instance_class            = var.db_instance_class
+  username                  = var.db_username
+  password                  = var.db_password
+  db_subnet_group_name      = aws_db_subnet_group.duracloud_db_subnet_group.name
+  vpc_security_group_ids    =  [ aws_security_group.duracloud_database.id ]
+  skip_final_snapshot       = "true"
+  final_snapshot_identifier = "final-duracloud-${var.stack_name}"
+
+  tags = {
+    Name       = "duracloud-${var.stack_name}-db-instance"
   }
 }

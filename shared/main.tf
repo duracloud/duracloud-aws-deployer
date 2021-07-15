@@ -134,7 +134,7 @@ resource "aws_db_instance" "duracloud" {
 
   depends_on                = [aws_db_subnet_group.duracloud_db_subnet_group]
   name                      = "duracloud"
-  identifier                = "duracloud-${var.stack_name}-db-instance"
+  identifier                = "${var.stack_name}-db-instance"
   allocated_storage         = 20
   storage_type              = "gp2"
   engine                    = "mysql" 
@@ -149,6 +149,17 @@ resource "aws_db_instance" "duracloud" {
   final_snapshot_identifier = "final-duracloud-${var.stack_name}"
 
   tags = {
-    Name       = "duracloud-${var.stack_name}-db-instance"
+    Name       = "${var.stack_name}-db-instance"
+  }
+}
+
+resource "aws_instance" "bastion" {
+  ami                         = "ami-0dc2d3e4c0f9ebd18"
+  instance_type               = "t3.micro"
+  associate_public_ip_address = true
+  subnet_id                   = aws_subnet.duracloud_subnet_a.id
+  key_name                    = var.ec2_keypair 
+  tags = {
+    Name       = "${var.stack_name}-bastion"
   }
 }

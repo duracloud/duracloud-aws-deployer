@@ -32,6 +32,13 @@ data "aws_subnet" "duracloud_a" {
   }
 }
 
+data "aws_subnet" "duracloud_b" {
+
+  tags = {
+    Name = "${var.stack_name}-subnet-b"
+  }
+}
+
 resource "aws_security_group" "duracloud_mill" {
 
   vpc_id = data.aws_vpc.duracloud.id
@@ -123,10 +130,16 @@ resource "aws_sqs_queue" "storage-stats" {
   receive_wait_time_seconds = 10
 
   tags = {
-    "Name" = "${var.stack_name}-"
+    "Name" = "${var.stack_name}-storage-stats"
   }
 }
 
+
+# configure mill database users
+
+data "aws_db_instance" "database" {
+  db_instance_identifier =  "${var.stack_name}-db-instance"
+}
 
 
 resource "aws_launch_configuration" "audit_worker_launch_config" {
@@ -135,6 +148,10 @@ resource "aws_launch_configuration" "audit_worker_launch_config" {
   instance_type = var.worker_instance_class 
   spot_price    = var.worker_spot_price 
   user_data = templatefile("${path.module}/resources/cloud-init.tpl", merge(local.cloud_init_props, { node_type = "audit_worker" } ))
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = 60	
+  }
   lifecycle {
     create_before_destroy = true
   }
@@ -144,11 +161,64 @@ resource "aws_autoscaling_group" "audit_worker_asg" {
   name                 = "audit-worker-asg"
   launch_configuration = aws_launch_configuration.audit_worker_launch_config.name
   vpc_zone_identifier       = [data.aws_subnet.duracloud_a.id]
-  max_size = 1
+  max_size = 10 
   min_size = 0 
+  //availability_zones = [data.aws_subnet.duracloud_a.availability_zone, data.aws_subnet.duracloud_b.availability_zone ]
 }
 
+resource "aws_autoscaling_policy" "audit_worker_scale_up" {
+  name                   = "audit_worker_scale_up"
+  scaling_adjustment     = 1 
+  adjustment_type        = "ChangeInCapacity"
+  policy_type            = "SimpleScaling"
+  cooldown               = 900
+  autoscaling_group_name = aws_autoscaling_group.audit_worker_asg.name
+}
 
+resource "aws_autoscaling_policy" "audit_worker_scale_down" {
+  name                   = "audit_worker_scale_down"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  policy_type            = "SimpleScaling"
+  cooldown               = 900
+  autoscaling_group_name = aws_autoscaling_group.audit_worker_asg.name
+}
+
+resource "aws_cloudwatch_metric_alarm" "audit_worker_scale_up_alarm" {
+  alarm_name          = "large-audit_queue-alarm"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "1000"
+
+  dimensions = {
+    QueueName = aws_sqs_queue.audit.name 
+  }
+
+  alarm_description = "This metric monitors audit queue size"
+  alarm_actions     = [aws_autoscaling_policy.audit_worker_scale_up.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "audit_worker_scale_down_alarm" {
+  alarm_name          = "small-audit-queue-alarm"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = "4"
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "500"
+
+  dimensions = {
+    QueueName = aws_sqs_queue.audit.name
+  }
+
+  alarm_description = "This metric monitors audit queue size"
+  alarm_actions     = [aws_autoscaling_policy.audit_worker_scale_down.arn]
+}
 
 
 

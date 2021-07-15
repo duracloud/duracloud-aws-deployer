@@ -26,4 +26,6 @@ variable "db_password" {
   default     = "duracloud-pw"
 }
 
-
+variable "ec2_keypair" {
+  description = "The EC2 keypair to use in case you want to access the instance."
+}

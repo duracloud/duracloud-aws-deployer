@@ -29,3 +29,7 @@ variable "db_password" {
 variable "ec2_keypair" {
   description = "The EC2 keypair to use in case you want to access the instance."
 }
+
+variable "backend_bucket" { 
+   description = "The S3 bucket where terraform state is stored."
+}

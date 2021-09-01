@@ -7,8 +7,13 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "mill_docker_container" {
+  description = "The docker container of DuraCloud Mill"
+  default     = "dbernstein/mill"
+}
+
 variable "mill_version" {
-  description = "The docker version of Fedora"
+  description = "The docker version of DuraCloud Mill"
   default     = "latest"
 }
 

@@ -30,20 +30,20 @@ cloud_final_modules:
 # Add apt repositories
 apt_sources:
  # Enable "multiverse" repos
- - source: deb $MIRROR $RELEASE multiverse
- - source: deb-src $MIRROR $RELEASE multiverse
- - source: deb $MIRROR $RELEASE-updates multiverse
- - source: deb-src $MIRROR $RELEASE-updates multiverse
- - source: deb http://security.ubuntu.com/ubuntu $RELEASE-security multiverse
- - source: deb-src http://security.ubuntu.com/ubuntu $RELEASE-security multiverse
+ #- source: deb $MIRROR $RELEASE multiverse
+ #- source: deb-src $MIRROR $RELEASE multiverse
+ #- source: deb $MIRROR $RELEASE-updates multiverse
+ #- source: deb-src $MIRROR $RELEASE-updates multiverse
+ #- source: deb http://security.ubuntu.com/ubuntu $RELEASE-security multiverse
+ #- source: deb-src http://security.ubuntu.com/ubuntu $RELEASE-security multiverse
  # Enable "partner" repos
- - source: deb http://archive.canonical.com/ubuntu $RELEASE partner
- - source: deb-src http://archive.canonical.com/ubuntu $RELEASE partner
+ #- source: deb http://archive.canonical.com/ubuntu $RELEASE partner
+ #- source: deb-src http://archive.canonical.com/ubuntu $RELEASE partner
 
 # Run 'apt-get update' on first boot
 apt_update: true
 
-# Run 'apt-get upgrade' on first boot
+# Run 'upgrade' on first boot
 apt_upgrade: true
 
 # Reboot after package install/upgrade if needed (e.g. if kernel update)
@@ -51,12 +51,6 @@ apt_reboot_if_required: True
 
 # Install additional packages on first boot
 packages:
- - nfs-common # for using AWS EFS
- - wget
- - htop 
- - curl
- - unzip
- - make
 
 # run commands
 # runcmd contains a list of either lists or a string
@@ -95,10 +89,10 @@ millHome=/tmp/mill-home
 mkdir -p $millHome
 
 #copy configuration bucket contents to mill home
-aws s3 copy s3://${mill_s3_config_location} $millHome/
+aws s3 cp --recursive s3://${mill_s3_config_location} $millHome/
 
 instanceId=`ls /var/lib/cloud/instances`
 
-docker run -it  -e HOST_NAME="${instance_prefix}-${node_type}-$instanceId" -e DOMAIN=${domain} -e NODE_TYPE="${node_type}" -e AWS_REGION="${aws_region}" -v $millHome:/mill-home  --name=duracloud-mill  duracloud/mill:${mill_version};
+docker run -d  -e HOST_NAME="${instance_prefix}-${node_type}-$instanceId" -e DOMAIN=${domain} -e NODE_TYPE="${node_type}" -e AWS_REGION="${aws_region}" -v $millHome:/mill-home  --name=duracloud-mill  ${mill_docker_container}:${mill_version};
 
 --===============2205584129673038508==--

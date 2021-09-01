@@ -11,6 +11,7 @@ After installing terraform
 git clone https://github.com/duracloud/duracloud-aws-deployer
 cd duracloud-aws-deployer
 cd shared
+export AWS_PROFILE=<your aws profile>
 terraform init
 cd ../mill
 terraform init

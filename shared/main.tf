@@ -1,22 +1,37 @@
+resource "aws_iam_policy" "policy_one" {
+  name = "policy-618033"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "*"
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+
 resource "aws_iam_role" "duracloud" {
 
   name                  = "duracloud-role"
   force_detach_policies = true
-  assume_role_policy    = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
+  assume_role_policy  = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
       },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
+    ]
+  }) 
+  managed_policy_arns = [aws_iam_policy.policy_one.arn]
 
   tags = {
     Name = "${var.stack_name}-role"
@@ -42,10 +57,21 @@ resource "aws_vpc" "duracloud" {
   }
 }
 
-resource "aws_subnet" "duracloud_subnet_a" {
+resource "aws_subnet" "duracloud_public_subnet" {
 
  vpc_id            = aws_vpc.duracloud.id
  cidr_block        = "10.0.0.0/24"
+ availability_zone = "${var.aws_region}a"
+
+ tags = {
+    Name = "${var.stack_name}-public-subnet"
+  }
+}
+
+resource "aws_subnet" "duracloud_subnet_a" {
+
+ vpc_id            = aws_vpc.duracloud.id
+ cidr_block        = "10.0.1.0/24"
  availability_zone = "${var.aws_region}a"
 
  tags = { 
@@ -56,11 +82,20 @@ resource "aws_subnet" "duracloud_subnet_a" {
 resource "aws_subnet" "duracloud_subnet_b" {
 
  vpc_id            = aws_vpc.duracloud.id
- cidr_block        = "10.0.1.0/24"
+ cidr_block        = "10.0.2.0/24"
  availability_zone = "${var.aws_region}b"
 
  tags = {
     Name = "${var.stack_name}-subnet-b"
+  }
+}
+
+resource "aws_route_table" "duracloud_nat" {
+
+  vpc_id = aws_vpc.duracloud.id
+
+  tags = {
+    Name = "${var.stack_name}-nat-route-table"
   }
 }
 
@@ -73,6 +108,12 @@ resource "aws_route_table" "duracloud" {
   }
 }
 
+resource "aws_route_table_association" "duracloud_nat" {
+
+  subnet_id      = aws_subnet.duracloud_public_subnet.id
+  route_table_id = aws_route_table.duracloud_nat.id
+}
+
 resource "aws_route_table_association" "duracloud" {
 
   subnet_id      = aws_subnet.duracloud_subnet_a.id
@@ -81,10 +122,31 @@ resource "aws_route_table_association" "duracloud" {
 
 resource "aws_route" "route2igc" {
 
-  route_table_id            = aws_route_table.duracloud.id
+  route_table_id            = aws_route_table.duracloud_nat.id
   destination_cidr_block    = "0.0.0.0/0"
   gateway_id                = aws_internet_gateway.duracloud.id
 }
+
+resource "aws_route" "route2nat" {
+
+  route_table_id            = aws_route_table.duracloud.id
+  destination_cidr_block    = "0.0.0.0/0"
+  gateway_id                = aws_nat_gateway.duracloud_nat.id
+}
+
+
+
+resource "aws_nat_gateway" "duracloud_nat" {
+  allocation_id = aws_eip.duracloud_nat.id
+  subnet_id     = aws_subnet.duracloud_public_subnet.id
+
+  tags = {
+    Name = "${var.stack_name}-nat-gateway" 
+  }
+
+  depends_on = [aws_internet_gateway.duracloud]
+}
+
 
 resource "aws_internet_gateway" "duracloud" {
 
@@ -95,6 +157,9 @@ resource "aws_internet_gateway" "duracloud" {
   }
 }
 
+resource "aws_eip" "duracloud_nat" {
+  vpc      = true
+}
 
 resource "aws_db_subnet_group" "duracloud_db_subnet_group" {
 
@@ -153,11 +218,35 @@ resource "aws_db_instance" "duracloud" {
   }
 }
 
+resource "aws_security_group" "duracloud_bastion" {
+
+  vpc_id = aws_vpc.duracloud.id
+
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.stack_name}-bastion-sg"
+  }
+}
+
 resource "aws_instance" "bastion" {
   ami                         = "ami-0dc2d3e4c0f9ebd18"
   instance_type               = "t3.micro"
   associate_public_ip_address = true
-  subnet_id                   = aws_subnet.duracloud_subnet_a.id
+  security_groups             = [aws_security_group.duracloud_bastion.id]
+  subnet_id                   = aws_subnet.duracloud_public_subnet.id
   key_name                    = var.ec2_keypair 
   tags = {
     Name       = "${var.stack_name}-bastion"

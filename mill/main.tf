@@ -8,7 +8,7 @@ locals {
   node_image_id =  "ami-005455a8cbc54a86a" 
   cloud_init_props = {
     aws_region = var.aws_region
-    mill_s3_config_location = var.mill_s3_config_location
+    mill_s3_config_location = join("", [var.mill_s3_config_bucket,var.mill_s3_config_path])
     efs_dns_name = aws_efs_file_system.duracloud_mill.dns_name	
     mill_docker_container = var.mill_docker_container
     mill_version = var.mill_version  
@@ -16,7 +16,45 @@ locals {
     domain = "test.org" 
   }
 
+  mill_config_map = yamldecode(file(var.mill_config_yaml))
+
 }
+
+
+resource "local_file" "sumo_properties" {
+    content     = templatefile("${path.module}/resources/sumo.properties.tpl", local.mill_config_map)
+    filename = "${path.module}/output/sumo.properties"
+}
+
+resource "aws_s3_bucket_object" "sumo_properties" {
+  bucket = var.mill_s3_config_bucket
+  key    = join("", [var.mill_s3_config_path, "/sumo.properties"])
+  source = local_file.sumo_properties.filename
+}
+
+resource "local_file" "mill_config_properties" {
+    content     = templatefile("${path.module}/resources/mill-config.properties.tpl", 
+                  merge(local.cloud_init_props, 
+                        local.mill_config_map, 
+                        { database_host = data.aws_db_instance.database.address,  
+                          database_port = data.aws_db_instance.database.port,  
+                          audit_queue_name = aws_sqs_queue.audit.name, 
+                          bit_queue_name = aws_sqs_queue.bit.name, 
+                          dup_high_priority_queue_name = aws_sqs_queue.high_priority_dup.name, 
+                          dup_low_priority_queue_name = aws_sqs_queue.low_priority_dup.name,
+                          bit_report_queue_name = aws_sqs_queue.bit_report.name,
+                          bit_error_queue_name = aws_sqs_queue.bit_error.name,
+                          dead_letter_queue_name = aws_sqs_queue.dead_letter.name,
+                          storage_stats_queue_name = aws_sqs_queue.storage_stats.name }))
+    filename = "${path.module}/output/mill-config.properties"
+}
+
+resource "aws_s3_bucket_object" "mill_config_properties" {
+  bucket = var.mill_s3_config_bucket
+  key    = join("", [var.mill_s3_config_path, "/mill-config.properties"])
+  source = local_file.mill_config_properties.filename
+}
+
 
 data "aws_iam_instance_profile" "duracloud" {
   name = "duracloud-instance-profile"
@@ -139,7 +177,7 @@ resource "aws_sqs_queue" "bit_error" {
   }
 }
 
-resource "aws_sqs_queue" "storage-stats" {
+resource "aws_sqs_queue" "storage_stats" {
   name                      = "${var.stack_name}-storage-stats"
   delay_seconds             = 90
   max_message_size          = 2048
@@ -151,7 +189,7 @@ resource "aws_sqs_queue" "storage-stats" {
   }
 }
 
-resource "aws_sqs_queue" "dead-letter" {
+resource "aws_sqs_queue" "dead_letter" {
   name                      = "${var.stack_name}-dead-letter"
   delay_seconds             = 90
   max_message_size          = 2048

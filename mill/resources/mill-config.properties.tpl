@@ -76,10 +76,10 @@ looping.bit.frequency=0d
 looping.bit.max-task-queue-size=200000
 
 # A file containing inclusions as regular expressions, one expression per line. Expressions will be matched against the following path: /{account}/{storeId}/{spaceId}
-looping.bit.inclusion-list-file=/home/duracloud/bit-inclusion.txt
+looping.bit.inclusion-list-file=/mill-home/bit-inclusion.txt
 
 # A file containing exclusions as regular expressions, one expression per line.Expressions will be matched against the following path: /{account}/{storeId}/{spaceId}
-looping.bit.exclusion-list-file=/home/duracloud/bit-exclusion.txt
+looping.bit.exclusion-list-file=/mill-home/bit-exclusion.txt
 
 
 #############################
@@ -96,10 +96,10 @@ looping.storagestats.max-task-queue-size=200000
 looping.storagestats.start-time=20:00
 
 # A file containing inclusions as regular expressions, one expression per line. Expressions will be matched against the following path: /{account}/{storeId}/{spaceId}
-looping.storagestats.inclusion-list-file=/home/duracloud/storage-stats-inclusion.txt
+looping.storagestats.inclusion-list-file=/mill-home/storage-stats-inclusion.txt
 
 # A file containing exclusions as regular expressions, one expression per line.Expressions will be matched against the following path: /{account}/{storeId}/{spaceId}
-looping.storagestats.exclusion-list-file=/home/duracloud/storage-stats-exclusion.txt
+looping.storagestats.exclusion-list-file=/mill-home/storage-stats-exclusion.txt
 
 ###################
 # MANIFEST CLEANER

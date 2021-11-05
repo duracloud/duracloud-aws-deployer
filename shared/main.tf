@@ -177,7 +177,7 @@ resource "aws_security_group" "duracloud_database" {
   name   = "duracloud-${var.stack_name}-db-sg"
 
   ingress {
-    cidr_blocks = ["10.0.0.0/24"]
+    cidr_blocks = ["10.0.0.0/24","10.0.1.0/24"]
     from_port   = 3306 
     to_port     = 3306 
     protocol    = "tcp"

@@ -203,7 +203,7 @@ resource "aws_db_instance" "duracloud" {
   allocated_storage         = 20
   storage_type              = "gp2"
   engine                    = "mysql" 
-  engine_version            = "5.7"
+  engine_version            = "8.0"
   port                      = 3306 
   instance_class            = var.db_instance_class
   username                  = var.db_username

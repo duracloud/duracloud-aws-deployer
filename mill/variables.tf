@@ -9,7 +9,7 @@ variable "aws_region" {
 
 variable "mill_docker_container" {
   description = "The docker container of DuraCloud Mill"
-  default     = "dbernstein/mill"
+  default     = "ghcr.io/duracloud/mill"
 }
 
 variable "mill_version" {

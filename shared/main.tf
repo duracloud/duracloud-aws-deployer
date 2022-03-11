@@ -11,6 +11,10 @@ resource "aws_iam_policy" "policy_one" {
       },
     ]
   })
+
+  tags = {
+    Name = "${var.stack_name}-iam-policy"
+  }
 }
 
 
@@ -100,7 +104,6 @@ resource "aws_route_table" "duracloud_nat" {
 }
 
 resource "aws_route_table" "duracloud" {
-
   vpc_id = aws_vpc.duracloud.id
 
   tags = { 
@@ -109,7 +112,6 @@ resource "aws_route_table" "duracloud" {
 }
 
 resource "aws_route_table_association" "duracloud_nat" {
-
   subnet_id      = aws_subnet.duracloud_public_subnet.id
   route_table_id = aws_route_table.duracloud_nat.id
 }
@@ -121,7 +123,6 @@ resource "aws_route_table_association" "duracloud" {
 }
 
 resource "aws_route" "route2igc" {
-
   route_table_id            = aws_route_table.duracloud_nat.id
   destination_cidr_block    = "0.0.0.0/0"
   gateway_id                = aws_internet_gateway.duracloud.id
@@ -133,7 +134,6 @@ resource "aws_route" "route2nat" {
   destination_cidr_block    = "0.0.0.0/0"
   gateway_id                = aws_nat_gateway.duracloud_nat.id
 }
-
 
 
 resource "aws_nat_gateway" "duracloud_nat" {
@@ -159,6 +159,10 @@ resource "aws_internet_gateway" "duracloud" {
 
 resource "aws_eip" "duracloud_nat" {
   vpc      = true
+
+  tags = {
+    Name = "${var.stack_name}-nat-eip"
+  }
 }
 
 resource "aws_db_subnet_group" "duracloud_db_subnet_group" {
@@ -198,7 +202,7 @@ resource "aws_security_group" "duracloud_database" {
 resource "aws_db_instance" "duracloud" {
 
   depends_on                = [aws_db_subnet_group.duracloud_db_subnet_group]
-  name                      = "duracloud"
+  db_name                   = "duracloud"
   identifier                = "${var.stack_name}-db-instance"
   allocated_storage         = 20
   storage_type              = "gp2"
@@ -242,7 +246,7 @@ resource "aws_security_group" "duracloud_bastion" {
 }
 
 resource "aws_instance" "bastion" {
-  ami                         = "ami-0dc2d3e4c0f9ebd18"
+  ami                         = "ami-00656d51d312f0dee"
   instance_type               = "t3.micro"
   associate_public_ip_address = true
   security_groups             = [aws_security_group.duracloud_bastion.id]

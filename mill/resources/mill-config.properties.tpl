@@ -10,8 +10,6 @@ db.host=${database_host}
 db.port=${database_port}
 db.user=${account_db_user}
 db.pass=${account_db_password}
-db.user=accountsadmin
-db.pass=hottub2017#
 
 #########
 # Queues

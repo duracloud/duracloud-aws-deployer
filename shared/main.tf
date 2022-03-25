@@ -21,6 +21,19 @@ resource "aws_iam_policy" "policy_one" {
 resource "aws_iam_role" "beanstalk_service" {
   name = "aws-elasticbeanstalk-service-role" 
   force_detach_policies = true
+  assume_role_policy  = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "elasticbeanstalk.amazonaws.com"
+        }
+      },
+    ]
+  })
 }
 
 resource "aws_iam_policy_attachment" "enhanced_health" {
@@ -101,6 +114,8 @@ resource "aws_subnet" "duracloud_subnet_a" {
 
  vpc_id            = aws_vpc.duracloud.id
  cidr_block        = "10.0.1.0/24"
+ availability_zone = "${var.aws_region}a"
+
 
  tags = { 
     Name = "${var.stack_name}-subnet-a"
@@ -269,8 +284,30 @@ resource "aws_security_group" "duracloud_bastion" {
   }
 }
 
+data "aws_ami" "amazon_2" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-kernel-5.10-hvm-2.0.*-gp2"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["137112412989"] # amazon
+
+}
+
 resource "aws_instance" "bastion" {
-  ami                         = "ami-00656d51d312f0dee"
+  ami                         = data.aws_ami.amazon_2.id
   instance_type               = "t3.micro"
   associate_public_ip_address = true
   security_groups             = [aws_security_group.duracloud_bastion.id]

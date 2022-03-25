@@ -18,6 +18,31 @@ resource "aws_iam_policy" "policy_one" {
 }
 
 
+resource "aws_iam_role" "beanstalk_service" {
+  name = "aws-elasticbeanstalk-service-role" 
+  force_detach_policies = true
+}
+
+resource "aws_iam_policy_attachment" "enhanced_health" {
+  name       = "enhanced_health_attachement"
+  roles      = [aws_iam_role.beanstalk_service.name]
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth" 
+}
+
+resource "aws_iam_policy_attachment" "beanstalk_service" {
+  name       = "beanstalk_service"
+  roles      = [aws_iam_role.beanstalk_service.name]
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService"
+}
+
+resource "aws_iam_policy_attachment" "beanstalk_managed_updates_customer_role" {
+  name       = "beanstalk_managed_updates_customer_role"
+  roles      = [aws_iam_role.beanstalk_service.name]
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
+}
+
+
+
 resource "aws_iam_role" "duracloud" {
 
   name                  = "duracloud-role"
@@ -76,7 +101,6 @@ resource "aws_subnet" "duracloud_subnet_a" {
 
  vpc_id            = aws_vpc.duracloud.id
  cidr_block        = "10.0.1.0/24"
- availability_zone = "${var.aws_region}a"
 
  tags = { 
     Name = "${var.stack_name}-subnet-a"

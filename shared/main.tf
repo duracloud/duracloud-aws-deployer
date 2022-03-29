@@ -34,6 +34,10 @@ resource "aws_iam_role" "beanstalk_service" {
       },
     ]
   })
+
+  tags = {
+    Name = "${var.stack_name}-beanstalk-service-role"
+  }
 }
 
 resource "aws_iam_policy_attachment" "enhanced_health" {
@@ -104,6 +108,7 @@ resource "aws_subnet" "duracloud_public_subnet" {
  vpc_id            = aws_vpc.duracloud.id
  cidr_block        = "10.0.0.0/24"
  availability_zone = "${var.aws_region}a"
+ map_public_ip_on_launch = true
 
  tags = {
     Name = "${var.stack_name}-public-subnet"
@@ -302,7 +307,7 @@ data "aws_ami" "amazon_2" {
     values = ["hvm"]
   }
 
-  owners = ["137112412989"] # amazon
+  owners = ["amazon"] # amazon
 
 }
 

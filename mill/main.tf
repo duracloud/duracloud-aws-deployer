@@ -4,8 +4,33 @@ resource "aws_efs_file_system" "duracloud_mill" {
    } 
 }
 
+data "aws_ami" "docker_ami" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["aws-elasticbeanstalk-amzn-2018.03.0.x86_64-docker-hvm-*"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["amazon"] # amazon
+
+}
+
+
+
+
 locals { 
-  node_image_id =  "ami-005455a8cbc54a86a" 
+  node_image_id = data.aws_ami.docker_ami.id 
   cloud_init_props = {
     aws_region = var.aws_region
     mill_s3_config_location = join("", [var.mill_s3_config_bucket,var.mill_s3_config_path])
@@ -26,7 +51,7 @@ resource "local_file" "sumo_properties" {
     filename = "${path.module}/output/sumo.properties"
 }
 
-resource "aws_s3_bucket_object" "sumo_properties" {
+resource "aws_s3_object" "sumo_properties" {
   bucket = var.mill_s3_config_bucket
   key    = join("", [var.mill_s3_config_path, "/sumo.properties"])
   source = local_file.sumo_properties.filename
@@ -49,7 +74,7 @@ resource "local_file" "mill_config_properties" {
     filename = "${path.module}/output/mill-config.properties"
 }
 
-resource "aws_s3_bucket_object" "mill_config_properties" {
+resource "aws_s3_object" "mill_config_properties" {
   bucket = var.mill_s3_config_bucket
   key    = join("", [var.mill_s3_config_path, "/mill-config.properties"])
   source = local_file.mill_config_properties.filename

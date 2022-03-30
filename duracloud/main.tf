@@ -47,10 +47,17 @@ data "aws_vpc" "duracloud" {
   }
 }
 
-data "aws_subnet" "duracloud_public" {
+data "aws_subnet" "duracloud_public_a" {
 
   tags = {
-    Name = "${var.stack_name}-public-subnet"
+    Name = "${var.stack_name}-public-subnet-a"
+  }
+}
+
+data "aws_subnet" "duracloud_public_b" {
+
+  tags = {
+    Name = "${var.stack_name}-public-subnet-b"
   }
 }
 
@@ -190,7 +197,7 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
   setting {
     namespace = "aws:ec2:vpc"
     name      = "Subnets"
-    value     = data.aws_subnet.duracloud_public.id
+    value     = "${data.aws_subnet.duracloud_public_a.id},${data.aws_subnet.duracloud_public_b.id}"
   }
 
   setting {
@@ -211,6 +218,29 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
     value     = var.duracloud_s3_config_bucket
   }
 
+  setting {
+    namespace = "aws:elasticbeanstalk:environment:proxy"
+    name      = "ProxyServer"
+    value     = "apache"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"
+    name      = "duracloud.config.file"
+    value     = "s3://${aws_s3_object.duracloud_config_properties.bucket}/${aws_s3_object.duracloud_config_properties.key}"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"
+    name      = "log.level"
+    value     = "INFO"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "LoadBalancerType"
+    value     = "application"
+  }
 }
 
 

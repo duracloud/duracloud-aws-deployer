@@ -103,7 +103,7 @@ resource "aws_vpc" "duracloud" {
   }
 }
 
-resource "aws_subnet" "duracloud_public_subnet" {
+resource "aws_subnet" "duracloud_public_subnet_a" {
 
  vpc_id            = aws_vpc.duracloud.id
  cidr_block        = "10.0.0.0/24"
@@ -111,7 +111,19 @@ resource "aws_subnet" "duracloud_public_subnet" {
  map_public_ip_on_launch = true
 
  tags = {
-    Name = "${var.stack_name}-public-subnet"
+    Name = "${var.stack_name}-public-subnet-a"
+  }
+}
+
+resource "aws_subnet" "duracloud_public_subnet_b" {
+
+ vpc_id            = aws_vpc.duracloud.id
+ cidr_block        = "10.0.3.0/24"
+ availability_zone = "${var.aws_region}b"
+ map_public_ip_on_launch = true
+
+ tags = {
+    Name = "${var.stack_name}-public-subnet-b"
   }
 }
 
@@ -155,8 +167,13 @@ resource "aws_route_table" "duracloud" {
   }
 }
 
-resource "aws_route_table_association" "duracloud_nat" {
-  subnet_id      = aws_subnet.duracloud_public_subnet.id
+resource "aws_route_table_association" "duracloud_nat_a" {
+  subnet_id      = aws_subnet.duracloud_public_subnet_a.id
+  route_table_id = aws_route_table.duracloud_nat.id
+}
+
+resource "aws_route_table_association" "duracloud_nat_b" {
+  subnet_id      = aws_subnet.duracloud_public_subnet_b.id
   route_table_id = aws_route_table.duracloud_nat.id
 }
 
@@ -182,7 +199,7 @@ resource "aws_route" "route2nat" {
 
 resource "aws_nat_gateway" "duracloud_nat" {
   allocation_id = aws_eip.duracloud_nat.id
-  subnet_id     = aws_subnet.duracloud_public_subnet.id
+  subnet_id     = aws_subnet.duracloud_public_subnet_a.id
 
   tags = {
     Name = "${var.stack_name}-nat-gateway" 
@@ -284,8 +301,7 @@ resource "aws_security_group" "duracloud_bastion" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "${var.stack_name}-bastion-sg"
+  tags = { Name = "${var.stack_name}-bastion-sg"
   }
 }
 
@@ -316,7 +332,7 @@ resource "aws_instance" "bastion" {
   instance_type               = "t3.micro"
   associate_public_ip_address = true
   security_groups             = [aws_security_group.duracloud_bastion.id]
-  subnet_id                   = aws_subnet.duracloud_public_subnet.id
+  subnet_id                   = aws_subnet.duracloud_public_subnet_a.id
   key_name                    = var.ec2_keypair 
   tags = {
     Name       = "${var.stack_name}-bastion"

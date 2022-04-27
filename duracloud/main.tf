@@ -30,7 +30,7 @@ resource "local_file" "duracloud_config_properties" {
 
 resource "aws_s3_object" "duracloud_config_properties" {
   bucket = var.duracloud_s3_config_bucket
-  key    = join("", [var.duracloud_s3_config_path, "/duracloud-config.properties"])
+  key    = join("", [var.duracloud_s3_config_path, "duracloud-config.properties"])
   source = local_file.duracloud_config_properties.filename
 }
 
@@ -225,18 +225,6 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
   }
 
   setting {
-    namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"
-    name      = "duracloud.config.file"
-    value     = "s3://${aws_s3_object.duracloud_config_properties.bucket}/${aws_s3_object.duracloud_config_properties.key}"
-  }
-
-  setting {
-    namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"
-    name      = "log.level"
-    value     = "INFO"
-  }
-
-  setting {
     namespace = "aws:elasticbeanstalk:environment"
     name      = "LoadBalancerType"
     value     = "application"
@@ -249,4 +237,11 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
   application         = aws_elastic_beanstalk_application.duracloud.name
   template_name       = aws_elastic_beanstalk_configuration_template.config.name
   version_label       = var.duracloud_zip
+
+
+  setting {
+    namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"
+    name      = "JVM Options"
+    value = "-Dduracloud.config.file=s3://${aws_s3_object.duracloud_config_properties.bucket}/${aws_s3_object.duracloud_config_properties.key} -Dlog.level=INFO"
+  }
 }

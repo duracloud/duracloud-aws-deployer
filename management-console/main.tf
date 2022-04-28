@@ -3,35 +3,35 @@ locals {
     aws_region = var.aws_region
   }
 
-  duracloud_config_map = yamldecode(file(var.duracloud_config_yaml))
+  config_map = yamldecode(file(var.mc_config_yaml))
 
 }
 
 
 resource "local_file" "sumo_conf" {
-    content     = templatefile("${path.module}/resources/sumo.conf.tpl", local.duracloud_config_map)
+    content     = templatefile("${path.module}/resources/sumo.conf.tpl", local.config_map)
     filename = "${path.module}/output/sumo.conf"
 }
 
 resource "aws_s3_object" "sumo_conf" {
-  bucket = var.duracloud_s3_config_bucket
-  key    = join("", [var.duracloud_s3_config_path, "sumo.conf"])
+  bucket = var.mc_s3_config_bucket
+  key    = join("", [var.mc_s3_config_path, "sumo.conf"])
   source = local_file.sumo_conf.filename
 }
 
-resource "local_file" "duracloud_config_properties" {
+resource "local_file" "mc_config_properties" {
     content     = templatefile("${path.module}/resources/duracloud-config.properties.tpl", 
                   merge(local.cloud_init_props, 
-                        local.duracloud_config_map, 
+                        local.config_map, 
                         { database_host = data.aws_db_instance.database.address,  
                           database_port = data.aws_db_instance.database.port }))
     filename = "${path.module}/output/duracloud-config.properties"
 }
 
-resource "aws_s3_object" "duracloud_config_properties" {
-  bucket = var.duracloud_s3_config_bucket
-  key    = join("", [var.duracloud_s3_config_path, "duracloud-config.properties"])
-  source = local_file.duracloud_config_properties.filename
+resource "aws_s3_object" "mc_config_properties" {
+  bucket = var.mc_s3_config_bucket
+  key    = join("", [var.mc_s3_config_path, "duracloud-config.properties"])
+  source = local_file.mc_config_properties.filename
 }
 
 
@@ -98,7 +98,7 @@ resource "aws_security_group" "duracloud_load_balancer" {
   }
 }
 
-resource "aws_security_group" "duracloud_beanstalk" {
+resource "aws_security_group" "mc_beanstalk" {
 
   vpc_id = data.aws_vpc.duracloud.id
 
@@ -129,7 +129,7 @@ resource "aws_security_group" "duracloud_beanstalk" {
   }
 }
 
-resource "aws_security_group" "duracloud_beanstalk_instance" {
+resource "aws_security_group" "mc_beanstalk_instance" {
 
   vpc_id = data.aws_vpc.duracloud.id
 
@@ -137,7 +137,7 @@ resource "aws_security_group" "duracloud_beanstalk_instance" {
     from_port   = 80
     to_port     = 80 
     protocol    = "tcp"
-    security_groups = [aws_security_group.duracloud_beanstalk.id]
+    security_groups = [aws_security_group.mc_beanstalk.id]
   }
 
   egress {
@@ -148,7 +148,7 @@ resource "aws_security_group" "duracloud_beanstalk_instance" {
   }
 
   tags = {
-    Name = "${var.stack_name}-beanstalk-instance-sg"
+    Name = "${var.stack_name}-beanstalk-mc-sg"
   }
 }
 
@@ -159,9 +159,9 @@ data "aws_iam_role" "beanstalk_service" {
   }
 }
 
-resource "aws_elastic_beanstalk_application" "duracloud" {
-  name        = "DuraCloud"
-  description = "DuraCloud Beanstalk Application (${var.stack_name})"
+resource "aws_elastic_beanstalk_application" "mc" {
+  name        = "DuraCloud Management Console"
+  description = "DuraCloud Management Console Beanstalk Application (${var.stack_name})"
 
   appversion_lifecycle {
     service_role          = data.aws_iam_role.beanstalk_service.arn
@@ -170,22 +170,22 @@ resource "aws_elastic_beanstalk_application" "duracloud" {
   }
 
   tags = {
-    Name = "${var.stack_name}-eb-application"
+    Name = "${var.stack_name}-eb-mc-application"
   }
 }
 
 resource "aws_elastic_beanstalk_application_version" "default" {
-  name        = var.duracloud_zip
-  application = aws_elastic_beanstalk_application.duracloud.name 
-  description = "${var.duracloud_zip} application"
-  bucket      = var.duracloud_artifact_bucket
-  key         = var.duracloud_zip
+  name        = var.mc_war
+  application = aws_elastic_beanstalk_application.mc.name 
+  description = "${var.mc_war} application"
+  bucket      = var.mc_artifact_bucket
+  key         = var.mc_war
 }
 
 
 resource "aws_elastic_beanstalk_configuration_template" "config" {
-  name                = "duracloud-config"
-  application         = aws_elastic_beanstalk_application.duracloud.name
+  name                = "mc-config"
+  application         = aws_elastic_beanstalk_application.mc.name
   solution_stack_name = "64bit Amazon Linux 2 v4.2.12 running Tomcat 8.5 Corretto 11"
 
   setting {
@@ -215,7 +215,7 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "S3_CONFIG_BUCKET"
-    value     = var.duracloud_s3_config_bucket
+    value     = var.mc_s3_config_bucket
   }
 
   setting {
@@ -232,16 +232,15 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
 }
 
 
-resource "aws_elastic_beanstalk_environment" "duracloud" {
-  name                = "${var.stack_name}-core"
-  application         = aws_elastic_beanstalk_application.duracloud.name
+resource "aws_elastic_beanstalk_environment" "mc" {
+  name                = "${var.stack_name}-management-console"
+  application         = aws_elastic_beanstalk_application.mc.name
   template_name       = aws_elastic_beanstalk_configuration_template.config.name
-  version_label       = var.duracloud_zip
-
+  version_label       = var.mc_war
 
   setting {
     namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"
     name      = "JVM Options"
-    value = "-Dduracloud.config.file=s3://${aws_s3_object.duracloud_config_properties.bucket}/${aws_s3_object.duracloud_config_properties.key} -Dlog.level=INFO"
+    value = "-Dmc.config.file=s3://${aws_s3_object.mc_config_properties.bucket}/${aws_s3_object.mc_config_properties.key} -Dlog.level=INFO"
   }
 }

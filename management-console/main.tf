@@ -243,4 +243,24 @@ resource "aws_elastic_beanstalk_environment" "mc" {
     name      = "JVM Options"
     value = "-Dmc.config.file=s3://${aws_s3_object.mc_config_properties.bucket}/${aws_s3_object.mc_config_properties.key} -Dlog.level=INFO"
   }
+
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name = "SSLCertificateArns"
+    value = local.config_map["certificate_arn"]
+  }
+
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name = "Protocol"
+    value = "HTTPS" 
+  }
+
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "InstanceType"
+    value     = var.mc_instance_class
+  }
+
 }

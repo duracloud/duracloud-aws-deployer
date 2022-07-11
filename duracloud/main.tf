@@ -186,7 +186,7 @@ resource "aws_elastic_beanstalk_application_version" "default" {
 resource "aws_elastic_beanstalk_configuration_template" "config" {
   name                = "duracloud-config"
   application         = aws_elastic_beanstalk_application.duracloud.name
-  solution_stack_name = "64bit Amazon Linux 2 v4.2.12 running Tomcat 8.5 Corretto 11"
+  solution_stack_name = "64bit Amazon Linux 2 v4.2.16 running Tomcat 8.5 Corretto 11"
 
   setting {
     namespace = "aws:ec2:vpc"
@@ -229,6 +229,8 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
     name      = "LoadBalancerType"
     value     = "application"
   }
+
+
 }
 
 
@@ -244,4 +246,23 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
     name      = "JVM Options"
     value = "-Dduracloud.config.file=s3://${aws_s3_object.duracloud_config_properties.bucket}/${aws_s3_object.duracloud_config_properties.key} -Dlog.level=INFO"
   }
+
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name = "SSLCertificateArns"
+    value = local.duracloud_config_map["certificate_arn"]
+  }
+
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name = "Protocol"
+    value = "HTTPS"
+  }
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "InstanceType"
+    value     = var.duracloud_instance_class
+  }
+ 
 }

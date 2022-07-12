@@ -266,3 +266,21 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
   }
  
 }
+
+resource "aws_alb_target_group" "duracloud" {
+  name        = "duracloud-alb-target-group"
+  target_type = "alb"
+  port        = 80
+  protocol    = "TCP"
+  vpc_id      = data.aws_vpc.duracloud.id
+  stickiness {
+      type        = "app_cookie"
+      cookie_name = "jsessionid"
+  }
+}
+
+resource "aws_alb_target_group_attachment" "duracloud" {
+  target_group_arn = aws_alb_target_group.duracloud.arn
+  target_id        = aws_elastic_beanstalk_environment.duracloud.load_balancers[0]
+  port             = 80
+}

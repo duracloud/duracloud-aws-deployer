@@ -94,13 +94,14 @@ data "aws_vpc" "duracloud" {
 }
 
 data "aws_subnet" "duracloud_a" {
-
+  vpc_id = data.aws_vpc.duracloud.id
   tags = {
     Name = "${var.stack_name}-subnet-a"
   }
 }
 
 data "aws_subnet" "duracloud_b" {
+  vpc_id = data.aws_vpc.duracloud.id
 
   tags = {
     Name = "${var.stack_name}-subnet-b"

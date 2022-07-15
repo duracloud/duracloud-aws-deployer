@@ -18,8 +18,8 @@ resource "aws_iam_policy" "policy_one" {
 }
 
 
-resource "aws_iam_role" "beanstalk_service" {
-  name = "aws-elasticbeanstalk-service-role" 
+resource "aws_iam_role" "beanstalk_service_role" {
+  name = "aws-beanstalk-service-role" 
   force_detach_policies = true
   assume_role_policy  = jsonencode({
     Version = "2012-10-17"
@@ -40,27 +40,27 @@ resource "aws_iam_role" "beanstalk_service" {
   }
 }
 
-resource "aws_iam_policy_attachment" "enhanced_health" {
+resource "aws_iam_policy_attachment" "beanstalk_enhanced_health" {
   name       = "enhanced_health_attachement"
-  roles      = [aws_iam_role.beanstalk_service.name]
+  roles      = [aws_iam_role.beanstalk_service_role.name]
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth" 
 }
 
-resource "aws_iam_policy_attachment" "beanstalk_service" {
-  name       = "beanstalk_service"
-  roles      = [aws_iam_role.beanstalk_service.name]
+resource "aws_iam_policy_attachment" "beanstalk_service_policy" {
+  name       = "beanstalk_service_policy"
+  roles      = [aws_iam_role.beanstalk_service_role.name]
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService"
 }
 
-resource "aws_iam_policy_attachment" "beanstalk_managed_updates_customer_role" {
-  name       = "beanstalk_managed_updates_customer_role"
-  roles      = [aws_iam_role.beanstalk_service.name]
+resource "aws_iam_policy_attachment" "beanstalk_managed_updates_customer_role_policy" {
+  name       = "beanstalk_managed_updates_customer_role_policy"
+  roles      = [aws_iam_role.beanstalk_service_role.name]
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
 }
 
 
 
-resource "aws_iam_role" "duracloud" {
+resource "aws_iam_role" "duracloud_role" {
 
   name                  = "duracloud-role"
   force_detach_policies = true
@@ -84,10 +84,10 @@ resource "aws_iam_role" "duracloud" {
   }
 }
 
-resource "aws_iam_instance_profile" "duracloud" {
+resource "aws_iam_instance_profile" "duracloud_instance_profile" {
 
   name = "duracloud-instance-profile"
-  role = aws_iam_role.duracloud.name
+  role = aws_iam_role.duracloud_role.name
 
   tags = {
     Name = "${var.stack_name}-instance-profile"
@@ -228,7 +228,7 @@ resource "aws_eip" "duracloud_nat" {
 
 resource "aws_db_subnet_group" "duracloud_db_subnet_group" {
 
-  name       = "duracloud-${var.stack_name}-db-subnet-group"
+  name       = "${var.stack_name}-db-subnet-group"
   subnet_ids = [aws_subnet.duracloud_subnet_a.id, aws_subnet.duracloud_subnet_b.id]
 
   tags = {
@@ -242,7 +242,7 @@ resource "aws_security_group" "duracloud_database" {
   name   = "duracloud-${var.stack_name}-db-sg"
 
   ingress {
-    cidr_blocks = ["10.0.0.0/24","10.0.1.0/24"]
+    cidr_blocks = ["10.0.0.0/24","10.0.1.0/24", "10.0.2.0/24","10.0.3.0/24",]
     from_port   = 3306 
     to_port     = 3306 
     protocol    = "tcp"
@@ -325,6 +325,13 @@ data "aws_ami" "amazon_2" {
 
   owners = ["amazon"] # amazon
 
+}
+
+resource "aws_sns_topic" "duracloud_account" {
+  name = "duracloud-account-topic"
+  tags = {
+    Name       = "${var.stack_name}-account-topic"
+  }
 }
 
 resource "aws_instance" "bastion" {

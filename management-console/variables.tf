@@ -7,30 +7,30 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "duracloud_config_yaml" {
+variable "mc_config_yaml" {
    description = "The path to a local yaml file containing the user configurable elements of duracloud"
 }
 
-variable "duracloud_s3_config_bucket" {
+variable "mc_s3_config_bucket" {
   description = "An S3 bucket containing duracloud config files"
 }
 
-variable "duracloud_s3_config_path" {
+variable "mc_s3_config_path" {
   default = ""
   description = "An optional path within the above bucket ta sub-directory containing your duracloud config files e.g. /optional/path"
 }
 
-variable "duracloud_artifact_bucket" {
-  description = "An S3 bucket containing the zipped  duracloud application"
+variable "mc_artifact_bucket" {
+  description = "An S3 bucket containing the managment console war"
 }
 
-variable "duracloud_zip" {
-  description = "The path (not including the bucket) to the zipped duraacloud application."
+variable "mc_war" {
+  description = "The path (not including the bucket) management-console war file."
 
 }
 
 
-variable "duracloud_instance_class" {
+variable "mc_instance_class" {
   description = "The instance size of worker ec2 instance class"
   default     = "m5.large"
 }

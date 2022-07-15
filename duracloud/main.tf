@@ -229,8 +229,6 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
     name      = "LoadBalancerType"
     value     = "application"
   }
-
-
 }
 
 
@@ -239,7 +237,6 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
   application         = aws_elastic_beanstalk_application.duracloud.name
   template_name       = aws_elastic_beanstalk_configuration_template.config.name
   version_label       = var.duracloud_zip
-
 
   setting {
     namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"

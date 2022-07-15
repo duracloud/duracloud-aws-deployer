@@ -8,4 +8,13 @@ account_db_password: "<your duracloud account db password>"
 notification_recipients: "<a comma sepaarated list of email addresses>"
 notification_recipients_non_tech: "<a comma sepaarated list of email addresses>"
 notification_sender: "<an email address>"
+mc_host: "<mc host - externally visible>"
+mc_port: 443
+mc_context: ""
+mc_domain: "<your mc domain>"
+notificiation_user: "<aws access key>""
+notification_password: "<aws secret key>"
+notification_from_address: "<email>"
+notification_admin_address: "<email>"
+certificate_arn: "<your cert arn>"
 

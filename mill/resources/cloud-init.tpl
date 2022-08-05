@@ -85,7 +85,7 @@ Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="user-script"
 
 #!/bin/bash
-millHome=/tmp/mill-home
+millHome=/root/mill-home
 mkdir -p $millHome
 
 #copy configuration bucket contents to mill home

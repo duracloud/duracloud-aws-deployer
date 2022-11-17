@@ -2,7 +2,16 @@
 A set of terraform scripts for automatically deploying a DuraCloud to AWS.
 
 ## Requirements
-terraform  (https://www.terraform.io/downloads.html)
+terraform 1.3.5 (https://www.terraform.io/downloads.html)
+
+### Install terraform environment manager:
+```
+brew install tfenv
+``
+### Install the required version of terraform
+```
+tfenv install 1.3.5
+```
 
 ## Installation
 

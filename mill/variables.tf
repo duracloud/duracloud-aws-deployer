@@ -43,7 +43,7 @@ variable "worker_instance_class" {
 
 variable "worker_spot_price" {
   description = "The max spot price for work instances"
-  default     = ".05"
+  default     = ".10"
 }
 
 variable "ec2_keypair" {

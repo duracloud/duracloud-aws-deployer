@@ -7,10 +7,6 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "mc_config_yaml" {
-   description = "The path to a local yaml file containing the user configurable elements of duracloud"
-}
-
 variable "mc_s3_config_bucket" {
   description = "An S3 bucket containing duracloud config files"
 }

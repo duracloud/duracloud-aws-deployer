@@ -1,3 +1,7 @@
+module "common_parameters" {
+  source = "../modules/common_parameters"
+}
+
 resource "aws_iam_policy" "policy_one" {
   name = "policy-618033"
 
@@ -16,7 +20,6 @@ resource "aws_iam_policy" "policy_one" {
     Name = "${var.stack_name}-iam-policy"
   }
 }
-
 
 resource "aws_iam_role" "beanstalk_service_role" {
   name = "aws-beanstalk-service-role" 
@@ -57,8 +60,6 @@ resource "aws_iam_policy_attachment" "beanstalk_managed_updates_customer_role_po
   roles      = [aws_iam_role.beanstalk_service_role.name]
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
 }
-
-
 
 resource "aws_iam_role" "duracloud_role" {
 
@@ -260,6 +261,7 @@ resource "aws_security_group" "duracloud_database" {
   }
 }
 
+
 resource "aws_db_instance" "duracloud" {
 
   depends_on                = [aws_db_subnet_group.duracloud_db_subnet_group]
@@ -272,7 +274,7 @@ resource "aws_db_instance" "duracloud" {
   port                      = 3306 
   instance_class            = var.db_instance_class
   username                  = var.db_username
-  password                  = var.db_password
+  password                  = module.common_parameters.db_password
   db_subnet_group_name      = aws_db_subnet_group.duracloud_db_subnet_group.name
   vpc_security_group_ids    =  [ aws_security_group.duracloud_database.id ]
   skip_final_snapshot       = "true"

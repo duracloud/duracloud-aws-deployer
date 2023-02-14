@@ -7,17 +7,9 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "mc_s3_config_bucket" {
-  description = "An S3 bucket containing duracloud config files"
-}
-
 variable "mc_s3_config_path" {
   default = ""
   description = "An optional path within the above bucket ta sub-directory containing your duracloud config files e.g. /optional/path"
-}
-
-variable "mc_artifact_bucket" {
-  description = "An S3 bucket containing the managment console war"
 }
 
 variable "mc_war" {

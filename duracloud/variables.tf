@@ -12,10 +12,6 @@ variable "duracloud_s3_config_path" {
   description = "An optional path within the bucket to a sub-directory containing your duracloud config files e.g. /optional/path"
 }
 
-variable "duracloud_artifact_bucket" {
-  description = "An S3 bucket containing the zipped  duracloud application"
-}
-
 variable "duracloud_zip" {
   description = "The path (not including the bucket) to the zipped duraacloud application."
 

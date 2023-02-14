@@ -1,3 +1,11 @@
+data "aws_ssm_parameter" "artifact_bucket" {
+  name = "duracloud_artifact_bucket"
+}
+
+data "aws_ssm_parameter" "config_bucket" {
+  name = "duracloud_config_bucket"
+}
+
 data "aws_ssm_parameter" "db_password" {
   name = "duracloud_master_database_password" 
 }
@@ -69,6 +77,8 @@ data "aws_ssm_parameter" "certificate_arn" {
 
 locals {
   common_parameters = {
+    artifact_bucket = data.aws_ssm_parameter.artifact_bucket.value
+    config_bucket = data.aws_ssm_parameter.config_bucket.value
     db_password = data.aws_ssm_parameter.db_password.value
     sumo_access_id = data.aws_ssm_parameter.sumo_access_id.value
     sumo_access_key = data.aws_ssm_parameter.sumo_access_key.value

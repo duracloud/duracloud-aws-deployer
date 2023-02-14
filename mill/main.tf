@@ -2,12 +2,6 @@ module "common_parameters" {
   source = "../modules/common_parameters"
 }
 
-module "sumo" {
-  source = "../modules/sumo"
-  bucket = var.mill_s3_config_bucket
-  path   = var.mill_s3_config_path
-}
-
 resource "aws_efs_file_system" "duracloud_mill" {
    tags = { 
      Name = "${var.stack_name}-efs"
@@ -41,7 +35,7 @@ locals {
   node_image_id = data.aws_ami.docker_ami.id 
   cloud_init_props = {
     aws_region = var.aws_region
-    mill_s3_config_location = join("", [var.mill_s3_config_bucket,var.mill_s3_config_path])
+    mill_s3_config_location = join("", [module.common_parameters.all["config_bucket"],var.mill_s3_config_path])
     efs_dns_name = aws_efs_file_system.duracloud_mill.dns_name	
     mill_docker_container = var.mill_docker_container
     mill_version = var.mill_version  
@@ -51,7 +45,7 @@ locals {
 }
 
 resource "aws_s3_object" "mill_config_properties" {
-  bucket = var.mill_s3_config_bucket
+  bucket = module.common_parameters.all["config_bucket"] 
   key    = join("", [var.mill_s3_config_path, "/mill-config.properties"])
   content = templatefile("${path.module}/resources/mill-config.properties.tpl",
                   merge(local.cloud_init_props,

@@ -2,6 +2,10 @@ module "common_parameters" {
   source = "../modules/common_parameters"
 }
 
+module "sumo" {
+  source = "../modules/sumo"
+}
+
 resource "aws_iam_policy" "policy_one" {
   name = "policy-618033"
 

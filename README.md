@@ -33,6 +33,8 @@ Set up the following key value pairs in the AWS parameter store replacing <value
 ```
 export AWS_REGION=your-aws-region
 export AWS_PROFILE=your-aws-profile
+aws ssm put-parameter --name "duracloud_artifact_bucket" --value="<value>" --region $AWS_REGION --type SecureString
+aws ssm put-parameter --name "duracloud_config_bucket" --value="<value>" --region $AWS_REGION --type SecureString
 aws ssm put-parameter --name "duracloud_master_database_password" --value="<value>" --region $AWS_REGION --type SecureString
 aws ssm put-parameter --name "duracloud_sumo_access_id" --value="<value>" --region $AWS_REGION --type SecureString
 aws ssm put-parameter --name "duracloud_sumo_access_key" --value="<value>" --region $AWS_REGION --type SecureString

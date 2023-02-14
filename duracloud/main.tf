@@ -2,12 +2,6 @@ module "common_parameters" {
   source = "../modules/common_parameters"
 }
 
-module "sumo" {
-  source = "../modules/sumo"
-  bucket = var.duracloud_s3_config_bucket
-  path   = var.duracloud_s3_config_path
-}
-
 locals { 
   cloud_init_props = {
     aws_region = var.aws_region
@@ -15,7 +9,7 @@ locals {
 }
 
 resource "aws_s3_object" "duracloud_config_properties" {
-  bucket = var.duracloud_s3_config_bucket
+  bucket = module.common_parameters.all["config_bucket"] 
   key    = join("", [var.duracloud_s3_config_path, "duracloud-config.properties"])
   content = templatefile("${path.module}/resources/duracloud-config.properties.tpl",
                   merge(local.cloud_init_props,
@@ -167,7 +161,7 @@ resource "aws_elastic_beanstalk_application_version" "default" {
   name        = var.duracloud_zip
   application = aws_elastic_beanstalk_application.duracloud.name 
   description = "${var.duracloud_zip} application"
-  bucket      = var.duracloud_artifact_bucket
+  bucket      = module.common_parameters.all["artifact_bucket"] 
   key         = var.duracloud_zip
 }
 
@@ -204,7 +198,7 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "S3_CONFIG_BUCKET"
-    value     = var.duracloud_s3_config_bucket
+    value     = module.common_parameters.all["config_bucket"] 
   }
 
   setting {

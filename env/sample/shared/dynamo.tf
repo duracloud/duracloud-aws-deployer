@@ -1,0 +1,1 @@
+../../../shared/dynamo.tf

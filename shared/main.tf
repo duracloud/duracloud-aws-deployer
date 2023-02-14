@@ -194,7 +194,7 @@ resource "aws_route" "route2nat" {
 
   route_table_id            = aws_route_table.duracloud.id
   destination_cidr_block    = "0.0.0.0/0"
-  gateway_id                = aws_nat_gateway.duracloud_nat.id
+  nat_gateway_id            = aws_nat_gateway.duracloud_nat.id
 }
 
 
@@ -340,7 +340,7 @@ resource "aws_instance" "bastion" {
   ami                         = data.aws_ami.amazon_2.id
   instance_type               = "t3.micro"
   associate_public_ip_address = true
-  security_groups             = [aws_security_group.duracloud_bastion.id]
+  vpc_security_group_ids      = [aws_security_group.duracloud_bastion.id]
   subnet_id                   = aws_subnet.duracloud_public_subnet_a.id
   key_name                    = var.ec2_keypair 
   tags = {

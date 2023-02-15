@@ -1,39 +1,22 @@
+module "common_parameters" {
+  source = "../modules/common_parameters"
+}
+
 locals { 
   cloud_init_props = {
     aws_region = var.aws_region
   }
-
-  duracloud_config_map = yamldecode(file(var.duracloud_config_yaml))
-
-}
-
-
-resource "local_file" "sumo_conf" {
-    content     = templatefile("${path.module}/resources/sumo.conf.tpl", local.duracloud_config_map)
-    filename = "${path.module}/output/sumo.conf"
-}
-
-resource "aws_s3_object" "sumo_conf" {
-  bucket = var.duracloud_s3_config_bucket
-  key    = join("", [var.duracloud_s3_config_path, "sumo.conf"])
-  source = local_file.sumo_conf.filename
-}
-
-resource "local_file" "duracloud_config_properties" {
-    content     = templatefile("${path.module}/resources/duracloud-config.properties.tpl", 
-                  merge(local.cloud_init_props, 
-                        local.duracloud_config_map, 
-                        { database_host = data.aws_db_instance.database.address,  
-                          database_port = data.aws_db_instance.database.port }))
-    filename = "${path.module}/output/duracloud-config.properties"
 }
 
 resource "aws_s3_object" "duracloud_config_properties" {
-  bucket = var.duracloud_s3_config_bucket
+  bucket = module.common_parameters.all["config_bucket"] 
   key    = join("", [var.duracloud_s3_config_path, "duracloud-config.properties"])
-  source = local_file.duracloud_config_properties.filename
+  content = templatefile("${path.module}/resources/duracloud-config.properties.tpl",
+                  merge(local.cloud_init_props,
+                        module.common_parameters.all,
+                        { database_host = data.aws_db_instance.database.address,
+                          database_port = data.aws_db_instance.database.port }))
 }
-
 
 data "aws_iam_instance_profile" "duracloud" {
   name = "duracloud-instance-profile"
@@ -178,7 +161,7 @@ resource "aws_elastic_beanstalk_application_version" "default" {
   name        = var.duracloud_zip
   application = aws_elastic_beanstalk_application.duracloud.name 
   description = "${var.duracloud_zip} application"
-  bucket      = var.duracloud_artifact_bucket
+  bucket      = module.common_parameters.all["artifact_bucket"] 
   key         = var.duracloud_zip
 }
 
@@ -215,7 +198,7 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "S3_CONFIG_BUCKET"
-    value     = var.duracloud_s3_config_bucket
+    value     = module.common_parameters.all["config_bucket"] 
   }
 
   setting {
@@ -247,7 +230,7 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
   setting {
     namespace = "aws:elbv2:listener:443"
     name = "SSLCertificateArns"
-    value = local.duracloud_config_map["certificate_arn"]
+    value = module.common_parameters.all["certificate_arn"]
   }
 
   setting {

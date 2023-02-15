@@ -17,17 +17,9 @@ variable "mill_version" {
   default     = "latest"
 }
 
-variable "mill_config_yaml" {
-   description = "The path to a local yaml file containing the user configurable elements of the mill."
-}
-
-variable "mill_s3_config_bucket" {
-  description = "An S3 bucket containing your mill config files e.g. yourbucket"
-}
-
 variable "mill_s3_config_path" {
   default = "/"
-  description = "An optional path within the above bucket ta sub-directory containing your mill config files e.g. /optional/path"
+  description = "An optional path within the config bucket to a sub-directory containing your mill config files e.g. /optional/path"
 }
 
 

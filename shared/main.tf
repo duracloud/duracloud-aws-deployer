@@ -1,3 +1,11 @@
+module "common_parameters" {
+  source = "../modules/common_parameters"
+}
+
+module "sumo" {
+  source = "../modules/sumo"
+}
+
 resource "aws_iam_policy" "policy_one" {
   name = "policy-618033"
 
@@ -16,7 +24,6 @@ resource "aws_iam_policy" "policy_one" {
     Name = "${var.stack_name}-iam-policy"
   }
 }
-
 
 resource "aws_iam_role" "beanstalk_service_role" {
   name = "aws-beanstalk-service-role" 
@@ -57,8 +64,6 @@ resource "aws_iam_policy_attachment" "beanstalk_managed_updates_customer_role_po
   roles      = [aws_iam_role.beanstalk_service_role.name]
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
 }
-
-
 
 resource "aws_iam_role" "duracloud_role" {
 
@@ -193,7 +198,7 @@ resource "aws_route" "route2nat" {
 
   route_table_id            = aws_route_table.duracloud.id
   destination_cidr_block    = "0.0.0.0/0"
-  gateway_id                = aws_nat_gateway.duracloud_nat.id
+  nat_gateway_id            = aws_nat_gateway.duracloud_nat.id
 }
 
 
@@ -260,6 +265,7 @@ resource "aws_security_group" "duracloud_database" {
   }
 }
 
+
 resource "aws_db_instance" "duracloud" {
 
   depends_on                = [aws_db_subnet_group.duracloud_db_subnet_group]
@@ -272,7 +278,7 @@ resource "aws_db_instance" "duracloud" {
   port                      = 3306 
   instance_class            = var.db_instance_class
   username                  = var.db_username
-  password                  = var.db_password
+  password                  = module.common_parameters.db_password
   db_subnet_group_name      = aws_db_subnet_group.duracloud_db_subnet_group.name
   vpc_security_group_ids    =  [ aws_security_group.duracloud_database.id ]
   skip_final_snapshot       = "true"
@@ -338,7 +344,7 @@ resource "aws_instance" "bastion" {
   ami                         = data.aws_ami.amazon_2.id
   instance_type               = "t3.micro"
   associate_public_ip_address = true
-  security_groups             = [aws_security_group.duracloud_bastion.id]
+  vpc_security_group_ids      = [aws_security_group.duracloud_bastion.id]
   subnet_id                   = aws_subnet.duracloud_public_subnet_a.id
   key_name                    = var.ec2_keypair 
   tags = {

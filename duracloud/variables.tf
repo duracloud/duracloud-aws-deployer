@@ -7,21 +7,9 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "duracloud_config_yaml" {
-   description = "The path to a local yaml file containing the user configurable elements of duracloud"
-}
-
-variable "duracloud_s3_config_bucket" {
-  description = "An S3 bucket containing duracloud config files"
-}
-
 variable "duracloud_s3_config_path" {
   default = ""
-  description = "An optional path within the above bucket ta sub-directory containing your duracloud config files e.g. /optional/path"
-}
-
-variable "duracloud_artifact_bucket" {
-  description = "An S3 bucket containing the zipped  duracloud application"
+  description = "An optional path within the bucket to a sub-directory containing your duracloud config files e.g. /optional/path"
 }
 
 variable "duracloud_zip" {

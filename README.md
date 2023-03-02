@@ -1,19 +1,23 @@
 # duracloud-aws-deployer
 A set of terraform scripts for automatically deploying a DuraCloud to AWS.
 
+_Note: only one DuraCloud stack of resources is supported per AWS account.
+For multiple DuraCloud environments you must use dedicated AWS accounts per
+environment._
+
 ## Requirements
 terraform 1.3.5 (https://www.terraform.io/downloads.html)
 
 ### Install terraform environment manager:
 ```
 brew install tfenv
-``
+```
 ### Install the required version of terraform
 ```
 tfenv install 1.3.5
 ```
 
-## Clone the Repo 
+## Clone the Repo
 ```
 git clone https://github.com/duracloud/duracloud-aws-deployer
 cd duracloud-aws-deployer
@@ -28,7 +32,7 @@ Then set up an aws profile in ~/.aws/config
 aws s3 mb s3://<terraform-state-bucket>
 ```
 
-## Configure your secrets 
+## Configure your secrets
 Set up the following key value pairs in the AWS parameter store replacing <value> with your secret values.
 ```
 export AWS_REGION=your-aws-region
@@ -64,14 +68,14 @@ cp -aR env/sample env/$ENV
 ```
 
 ## Configure the backends
-Open the following files and fill the missing values 
+Open the following files and fill the missing values
 ./env/$ENV/shared/backend.tf
 ./env/$ENV/management-console/backend.tf
 ./env/$ENV/duracloud/backend.tf
 ./env/$ENV/mill/backend.tf
 
 
-## Customize the non-sensitive parameters in the tfvars files 
+## Customize the non-sensitive parameters in the tfvars files
 Open the following files and fill in appropriate values:
 ./env/$ENV/shared/shared.auto.tfvar
 ./env/$ENV/management-console/manage-console.auto.tfvar
@@ -80,13 +84,13 @@ Open the following files and fill in appropriate values:
 
 ## Create shared resources
 ```
-cd env/$ENV/shared 
+cd env/$ENV/shared
 terraform init
-terraform apply 
+terraform apply
 ```
 ### Import old database (ie mysql < database.sql) or create your database.
 
-### Create artifact bucket 
+### Create artifact bucket
 ```
 aws s3 cp <duracloud_zip> s3://<duracloud arifact bucket>/
 ```
@@ -94,14 +98,14 @@ aws s3 cp <duracloud_zip> s3://<duracloud arifact bucket>/
 ```
 cd env/$ENV/mill
 terraform init
-terraform apply  
+terraform apply
 ```
 
 ## Create Management Console
 ```
 cd env/$ENV/management-console
 terraform init
-terraform apply 
+terraform apply
 ```
 
 ## Create DuraCloud

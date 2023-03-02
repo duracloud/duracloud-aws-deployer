@@ -27,9 +27,18 @@ cd duracloud-aws-deployer
 Then set up an aws profile in ~/.aws/config
 (c.f. https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
 
-## Create your terraform state bucket
+## Create your terraform state bucket and lock table
 ```
+export AWS_REGION=your-aws-region
+export AWS_PROFILE=your-aws-profile
+
 aws s3 mb s3://<terraform-state-bucket>
+
+aws dynamodb create-table \
+  --table-name <terraform-lock-table> \
+  --attribute-definitions AttributeName=LockID,AttributeType=S \
+  --key-schema AttributeName=LockID,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
 ```
 
 ## Configure your secrets

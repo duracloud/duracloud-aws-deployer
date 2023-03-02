@@ -5,7 +5,7 @@ terraform {
     region         = "<your aws region here>"
     key            = "terraform/duracloud/management-console/tf-state"
     encrypt        = true
-    dynamodb_table = "terraform-lock"
+    dynamodb_table = "<your table here>"
   }
 }
 

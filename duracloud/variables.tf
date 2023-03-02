@@ -1,12 +1,3 @@
-variable "aws_profile" {
-  description = "name of the aws profile"
-}
-
-variable "aws_region" {
-  description = "The aws region"
-  default     = "us-east-1"
-}
-
 variable "duracloud_s3_config_path" {
   default = ""
   description = "An optional path within the bucket to a sub-directory containing your duracloud config files e.g. /optional/path"
@@ -16,7 +7,6 @@ variable "duracloud_zip" {
   description = "The path (not including the bucket) to the zipped duraacloud application."
 
 }
-
 
 variable "duracloud_instance_class" {
   description = "The instance size of worker ec2 instance class"
@@ -30,4 +20,3 @@ variable "ec2_keypair" {
 variable "stack_name" {
   description = "The name of the duracloud stack."
 }
-

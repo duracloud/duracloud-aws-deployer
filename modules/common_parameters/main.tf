@@ -75,6 +75,14 @@ data "aws_ssm_parameter" "certificate_arn" {
   name = "duracloud_certificate_arn"
 }
 
+data "aws_ssm_parameter" "recaptcha_sitekey" {
+  name = "recaptcha_sitekey"
+}
+
+data "aws_ssm_parameter" "recaptcha_secret" {
+  name = "recaptcha_secret"
+}
+
 locals {
   common_parameters = {
     artifact_bucket                  = data.aws_ssm_parameter.artifact_bucket.value
@@ -98,5 +106,7 @@ locals {
     mc_context                       = ""
     mc_domain                        = data.aws_ssm_parameter.mc_domain.value
     certificate_arn                  = data.aws_ssm_parameter.certificate_arn.value
+    recaptcha_sitekey                = data.aws_ssm_parameter.recaptcha_sitekey.value
+    recaptcha_secret                 = data.aws_ssm_parameter.recaptcha_secret.value
   }
 }

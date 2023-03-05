@@ -65,6 +65,8 @@ aws ssm put-parameter --name "duracloud_notification_admin_address" --value="<va
 aws ssm put-parameter --name "duracloud_mc_host" --value="<value>" --region $AWS_REGION --type SecureString
 aws ssm put-parameter --name "duracloud_mc_domain" --value="<value>" --region $AWS_REGION --type SecureString
 aws ssm put-parameter --name "duracloud_certificate_arn" --value="<value>" --region $AWS_REGION --type SecureString
+aws ssm put-parameter --name "recaptcha_sitekey" --value="<value>" --region $AWS_REGION --type SecureString
+aws ssm put-parameter --name "recaptcha_secret" --value="<value>" --region $AWS_REGION --type SecureString
 ```
 
 ## Create a new environment by copying the sample.

@@ -21,3 +21,6 @@ notification.admin-address=${notification_admin_address}
 
 workDirectoryPath=/tmp/ama
 
+recaptcha.enabled=true
+recaptcha.siteKey=${recaptcha_sitekey}
+recaptcha.secret=${recaptcha_secret}

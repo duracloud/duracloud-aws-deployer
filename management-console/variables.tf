@@ -1,12 +1,3 @@
-variable "aws_profile" {
-  description = "name of the aws profile"
-}
-
-variable "aws_region" {
-  description = "The aws region"
-  default     = "us-east-1"
-}
-
 variable "mc_s3_config_path" {
   default = ""
   description = "An optional path within the above bucket ta sub-directory containing your duracloud config files e.g. /optional/path"

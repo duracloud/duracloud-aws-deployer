@@ -1,12 +1,3 @@
-variable "aws_profile" {
-  description = "name of the aws profile"
-}
-
-variable "aws_region" {
-  description = "The aws region"
-  default     = "us-east-1"
-}
-
 variable "mill_docker_container" {
   description = "The docker container of DuraCloud Mill"
   default     = "ghcr.io/duracloud/mill"

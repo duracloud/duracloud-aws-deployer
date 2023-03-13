@@ -3,9 +3,9 @@ module "common_parameters" {
 }
 
 resource "aws_efs_file_system" "duracloud_mill" {
-   tags = { 
-     Name = "${var.stack_name}-efs"
-   } 
+  tags = {
+    Name = "${var.stack_name}-efs"
+  }
 }
 
 data "aws_ami" "docker_ami" {
@@ -31,35 +31,35 @@ data "aws_ami" "docker_ami" {
 }
 
 
-locals { 
-  node_image_id = data.aws_ami.docker_ami.id 
+locals {
+  node_image_id = data.aws_ami.docker_ami.id
   cloud_init_props = {
-    aws_region = var.aws_region
-    mill_s3_config_location = join("", [module.common_parameters.all["config_bucket"],var.mill_s3_config_path])
-    efs_dns_name = aws_efs_file_system.duracloud_mill.dns_name	
-    mill_docker_container = var.mill_docker_container
-    mill_version = var.mill_version  
-    instance_prefix = var.stack_name
-    domain = "test.org" 
+    aws_region              = var.aws_region
+    mill_s3_config_location = join("", [module.common_parameters.all["config_bucket"], var.mill_s3_config_path])
+    efs_dns_name            = aws_efs_file_system.duracloud_mill.dns_name
+    mill_docker_container   = var.mill_docker_container
+    mill_version            = var.mill_version
+    instance_prefix         = var.stack_name
+    domain                  = "test.org"
   }
 }
 
 resource "aws_s3_object" "mill_config_properties" {
-  bucket = module.common_parameters.all["config_bucket"] 
+  bucket = module.common_parameters.all["config_bucket"]
   key    = join("", [var.mill_s3_config_path, "/mill-config.properties"])
   content = templatefile("${path.module}/resources/mill-config.properties.tpl",
-                  merge(local.cloud_init_props,
-                         module.common_parameters.all,
-                        { database_host = data.aws_db_instance.database.address,
-                          database_port = data.aws_db_instance.database.port,
-                          audit_queue_name = aws_sqs_queue.audit.name,
-                          bit_queue_name = aws_sqs_queue.bit.name,
-                          dup_high_priority_queue_name = aws_sqs_queue.high_priority_dup.name,
-                          dup_low_priority_queue_name = aws_sqs_queue.low_priority_dup.name,
-                          bit_report_queue_name = aws_sqs_queue.bit_report.name,
-                          bit_error_queue_name = aws_sqs_queue.bit_error.name,
-                          dead_letter_queue_name = aws_sqs_queue.dead_letter.name,
-                          storage_stats_queue_name = aws_sqs_queue.storage_stats.name }))
+    merge(local.cloud_init_props,
+      module.common_parameters.all,
+      { database_host                = data.aws_db_instance.database.address,
+        database_port                = data.aws_db_instance.database.port,
+        audit_queue_name             = aws_sqs_queue.audit.name,
+        bit_queue_name               = aws_sqs_queue.bit.name,
+        dup_high_priority_queue_name = aws_sqs_queue.high_priority_dup.name,
+        dup_low_priority_queue_name  = aws_sqs_queue.low_priority_dup.name,
+        bit_report_queue_name        = aws_sqs_queue.bit_report.name,
+        bit_error_queue_name         = aws_sqs_queue.bit_error.name,
+        dead_letter_queue_name       = aws_sqs_queue.dead_letter.name,
+  storage_stats_queue_name = aws_sqs_queue.storage_stats.name }))
 }
 
 
@@ -96,15 +96,15 @@ resource "aws_security_group" "mill_instance" {
 
   ingress {
     cidr_blocks = ["10.0.0.0/16"]
-    from_port   = 0 
-    to_port     = 0 
+    from_port   = 0
+    to_port     = 0
     protocol    = "-1"
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -213,5 +213,5 @@ resource "aws_sqs_queue" "dead_letter" {
 # configure mill database users
 
 data "aws_db_instance" "database" {
-  db_instance_identifier =  "${var.stack_name}-db-instance"
+  db_instance_identifier = "${var.stack_name}-db-instance"
 }

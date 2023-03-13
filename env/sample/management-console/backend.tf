@@ -10,6 +10,6 @@ terraform {
 }
 
 provider "aws" {
-  profile    = "<your aws profile here>"
-  region     = "<your aws region here>"
+  profile = "<your aws profile here>"
+  region  = "<your aws region here>"
 }

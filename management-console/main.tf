@@ -2,7 +2,7 @@ module "common_parameters" {
   source = "../modules/common_parameters"
 }
 
-locals { 
+locals {
   cloud_init_props = {
     aws_region = var.aws_region
   }
@@ -13,10 +13,10 @@ resource "aws_s3_object" "mc_config_properties" {
   bucket = module.common_parameters.all["config_bucket"]
   key    = join("", [var.mc_s3_config_path, "management-console-config.properties"])
   content = templatefile("${path.module}/resources/duracloud-config.properties.tpl",
-                  merge(local.cloud_init_props,
-                        module.common_parameters.all,
-                        { database_host = data.aws_db_instance.database.address,
-                          database_port = data.aws_db_instance.database.port })) 
+    merge(local.cloud_init_props,
+      module.common_parameters.all,
+      { database_host = data.aws_db_instance.database.address,
+  database_port = data.aws_db_instance.database.port }))
 }
 
 data "aws_iam_instance_profile" "duracloud" {
@@ -48,7 +48,7 @@ data "aws_subnet" "duracloud_public_b" {
 # configure database users
 
 data "aws_db_instance" "database" {
-  db_instance_identifier =  "${var.stack_name}-db-instance"
+  db_instance_identifier = "${var.stack_name}-db-instance"
 }
 
 
@@ -59,21 +59,21 @@ resource "aws_security_group" "duracloud_load_balancer" {
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
     from_port   = 80
-    to_port     = 80 
+    to_port     = 80
     protocol    = "tcp"
   }
 
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 22 
+    from_port   = 22
     to_port     = 22
     protocol    = "tcp"
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -95,16 +95,16 @@ resource "aws_security_group" "mc_beanstalk" {
 
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 443 
+    from_port   = 443
     to_port     = 443
     protocol    = "tcp"
   }
 
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -118,16 +118,16 @@ resource "aws_security_group" "mc_beanstalk_instance" {
   vpc_id = data.aws_vpc.duracloud.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80 
-    protocol    = "tcp"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
     security_groups = [aws_security_group.mc_beanstalk.id]
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -160,7 +160,7 @@ resource "aws_elastic_beanstalk_application" "mc" {
 
 resource "aws_elastic_beanstalk_application_version" "default" {
   name        = var.mc_war
-  application = aws_elastic_beanstalk_application.mc.name 
+  application = aws_elastic_beanstalk_application.mc.name
   description = "${var.mc_war} application"
   bucket      = module.common_parameters.all["artifact_bucket"]
   key         = var.mc_war
@@ -177,7 +177,7 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
     name      = "VPCId"
     value     = data.aws_vpc.duracloud.id
   }
-  
+
   setting {
     namespace = "aws:ec2:vpc"
     name      = "Subnets"
@@ -186,20 +186,20 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
-    name      = "IamInstanceProfile" 
-    value     =  data.aws_iam_instance_profile.duracloud.name
+    name      = "IamInstanceProfile"
+    value     = data.aws_iam_instance_profile.duracloud.name
   }
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "EC2KeyName"
-    value     = var.ec2_keypair 
+    value     = var.ec2_keypair
   }
 
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "S3_CONFIG_BUCKET"
-    value     = module.common_parameters.all["config_bucket"] 
+    value     = module.common_parameters.all["config_bucket"]
   }
 
   setting {
@@ -217,27 +217,27 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
 
 
 resource "aws_elastic_beanstalk_environment" "mc" {
-  name                = "${var.stack_name}-management-console"
-  application         = aws_elastic_beanstalk_application.mc.name
-  template_name       = aws_elastic_beanstalk_configuration_template.config.name
-  version_label       = var.mc_war
+  name          = "${var.stack_name}-management-console"
+  application   = aws_elastic_beanstalk_application.mc.name
+  template_name = aws_elastic_beanstalk_configuration_template.config.name
+  version_label = var.mc_war
 
   setting {
     namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"
     name      = "JVM Options"
-    value = "-Dmc.config.file=s3://${aws_s3_object.mc_config_properties.bucket}/${aws_s3_object.mc_config_properties.key} -Dlog.level=INFO"
+    value     = "-Dmc.config.file=s3://${aws_s3_object.mc_config_properties.bucket}/${aws_s3_object.mc_config_properties.key} -Dlog.level=INFO"
   }
 
   setting {
     namespace = "aws:elbv2:listener:443"
-    name = "SSLCertificateArns"
-    value = module.common_parameters.all["certificate_arn"]
+    name      = "SSLCertificateArns"
+    value     = module.common_parameters.all["certificate_arn"]
   }
 
   setting {
     namespace = "aws:elbv2:listener:443"
-    name = "Protocol"
-    value = "HTTPS" 
+    name      = "Protocol"
+    value     = "HTTPS"
   }
 
 

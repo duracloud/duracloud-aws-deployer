@@ -26,9 +26,9 @@ resource "aws_iam_policy" "policy_one" {
 }
 
 resource "aws_iam_role" "beanstalk_service_role" {
-  name = "aws-beanstalk-service-role" 
+  name                  = "aws-beanstalk-service-role"
   force_detach_policies = true
-  assume_role_policy  = jsonencode({
+  assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -50,7 +50,7 @@ resource "aws_iam_role" "beanstalk_service_role" {
 resource "aws_iam_policy_attachment" "beanstalk_enhanced_health" {
   name       = "enhanced_health_attachement"
   roles      = [aws_iam_role.beanstalk_service_role.name]
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth" 
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth"
 }
 
 resource "aws_iam_policy_attachment" "beanstalk_service_policy" {
@@ -69,7 +69,7 @@ resource "aws_iam_role" "duracloud_role" {
 
   name                  = "duracloud-role"
   force_detach_policies = true
-  assume_role_policy  = jsonencode({
+  assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -81,7 +81,7 @@ resource "aws_iam_role" "duracloud_role" {
         }
       },
     ]
-  }) 
+  })
   managed_policy_arns = [aws_iam_policy.policy_one.arn]
 
   tags = {
@@ -100,57 +100,57 @@ resource "aws_iam_instance_profile" "duracloud_instance_profile" {
 }
 
 resource "aws_vpc" "duracloud" {
- cidr_block           = "10.0.0.0/16"
- enable_dns_hostnames =  true
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
 
- tags = {
+  tags = {
     Name = "${var.stack_name}-vpc"
   }
 }
 
 resource "aws_subnet" "duracloud_public_subnet_a" {
 
- vpc_id            = aws_vpc.duracloud.id
- cidr_block        = "10.0.0.0/24"
- availability_zone = "${var.aws_region}a"
- map_public_ip_on_launch = true
+  vpc_id                  = aws_vpc.duracloud.id
+  cidr_block              = "10.0.0.0/24"
+  availability_zone       = "${var.aws_region}a"
+  map_public_ip_on_launch = true
 
- tags = {
+  tags = {
     Name = "${var.stack_name}-public-subnet-a"
   }
 }
 
 resource "aws_subnet" "duracloud_public_subnet_b" {
 
- vpc_id            = aws_vpc.duracloud.id
- cidr_block        = "10.0.3.0/24"
- availability_zone = "${var.aws_region}b"
- map_public_ip_on_launch = true
+  vpc_id                  = aws_vpc.duracloud.id
+  cidr_block              = "10.0.3.0/24"
+  availability_zone       = "${var.aws_region}b"
+  map_public_ip_on_launch = true
 
- tags = {
+  tags = {
     Name = "${var.stack_name}-public-subnet-b"
   }
 }
 
 resource "aws_subnet" "duracloud_subnet_a" {
 
- vpc_id            = aws_vpc.duracloud.id
- cidr_block        = "10.0.1.0/24"
- availability_zone = "${var.aws_region}a"
+  vpc_id            = aws_vpc.duracloud.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "${var.aws_region}a"
 
 
- tags = { 
+  tags = {
     Name = "${var.stack_name}-subnet-a"
   }
 }
 
 resource "aws_subnet" "duracloud_subnet_b" {
 
- vpc_id            = aws_vpc.duracloud.id
- cidr_block        = "10.0.2.0/24"
- availability_zone = "${var.aws_region}b"
+  vpc_id            = aws_vpc.duracloud.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "${var.aws_region}b"
 
- tags = {
+  tags = {
     Name = "${var.stack_name}-subnet-b"
   }
 }
@@ -167,7 +167,7 @@ resource "aws_route_table" "duracloud_nat" {
 resource "aws_route_table" "duracloud" {
   vpc_id = aws_vpc.duracloud.id
 
-  tags = { 
+  tags = {
     Name = "${var.stack_name}-route-table"
   }
 }
@@ -189,16 +189,16 @@ resource "aws_route_table_association" "duracloud" {
 }
 
 resource "aws_route" "route2igc" {
-  route_table_id            = aws_route_table.duracloud_nat.id
-  destination_cidr_block    = "0.0.0.0/0"
-  gateway_id                = aws_internet_gateway.duracloud.id
+  route_table_id         = aws_route_table.duracloud_nat.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.duracloud.id
 }
 
 resource "aws_route" "route2nat" {
 
-  route_table_id            = aws_route_table.duracloud.id
-  destination_cidr_block    = "0.0.0.0/0"
-  nat_gateway_id            = aws_nat_gateway.duracloud_nat.id
+  route_table_id         = aws_route_table.duracloud.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.duracloud_nat.id
 }
 
 
@@ -207,7 +207,7 @@ resource "aws_nat_gateway" "duracloud_nat" {
   subnet_id     = aws_subnet.duracloud_public_subnet_a.id
 
   tags = {
-    Name = "${var.stack_name}-nat-gateway" 
+    Name = "${var.stack_name}-nat-gateway"
   }
 
   depends_on = [aws_internet_gateway.duracloud]
@@ -224,7 +224,7 @@ resource "aws_internet_gateway" "duracloud" {
 }
 
 resource "aws_eip" "duracloud_nat" {
-  vpc      = true
+  vpc = true
 
   tags = {
     Name = "${var.stack_name}-nat-eip"
@@ -247,21 +247,21 @@ resource "aws_security_group" "duracloud_database" {
   name   = "duracloud-${var.stack_name}-db-sg"
 
   ingress {
-    cidr_blocks = ["10.0.0.0/24","10.0.1.0/24", "10.0.2.0/24","10.0.3.0/24",]
-    from_port   = 3306 
-    to_port     = 3306 
+    cidr_blocks = ["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", ]
+    from_port   = 3306
+    to_port     = 3306
     protocol    = "tcp"
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
-    Name   = "duracloud-${var.stack_name}-db-sg"
+    Name = "duracloud-${var.stack_name}-db-sg"
   }
 }
 
@@ -273,19 +273,19 @@ resource "aws_db_instance" "duracloud" {
   identifier                = "${var.stack_name}-db-instance"
   allocated_storage         = 20
   storage_type              = "gp2"
-  engine                    = "mysql" 
+  engine                    = "mysql"
   engine_version            = "8.0"
-  port                      = 3306 
+  port                      = 3306
   instance_class            = var.db_instance_class
   username                  = var.db_username
   password                  = module.common_parameters.db_password
   db_subnet_group_name      = aws_db_subnet_group.duracloud_db_subnet_group.name
-  vpc_security_group_ids    =  [ aws_security_group.duracloud_database.id ]
+  vpc_security_group_ids    = [aws_security_group.duracloud_database.id]
   skip_final_snapshot       = "true"
   final_snapshot_identifier = "final-duracloud-${var.stack_name}"
 
   tags = {
-    Name       = "${var.stack_name}-db-instance"
+    Name = "${var.stack_name}-db-instance"
   }
 }
 
@@ -301,9 +301,9 @@ resource "aws_security_group" "duracloud_bastion" {
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -336,7 +336,7 @@ data "aws_ami" "amazon_2" {
 resource "aws_sns_topic" "duracloud_account" {
   name = "duracloud-account-topic"
   tags = {
-    Name       = "${var.stack_name}-account-topic"
+    Name = "${var.stack_name}-account-topic"
   }
 }
 
@@ -346,8 +346,8 @@ resource "aws_instance" "bastion" {
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.duracloud_bastion.id]
   subnet_id                   = aws_subnet.duracloud_public_subnet_a.id
-  key_name                    = var.ec2_keypair 
+  key_name                    = var.ec2_keypair
   tags = {
-    Name       = "${var.stack_name}-bastion"
+    Name = "${var.stack_name}-bastion"
   }
 }

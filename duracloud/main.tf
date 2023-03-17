@@ -2,20 +2,20 @@ module "common_parameters" {
   source = "../modules/common_parameters"
 }
 
-locals { 
+locals {
   cloud_init_props = {
     aws_region = var.aws_region
   }
 }
 
 resource "aws_s3_object" "duracloud_config_properties" {
-  bucket = module.common_parameters.all["config_bucket"] 
+  bucket = module.common_parameters.all["config_bucket"]
   key    = join("", [var.duracloud_s3_config_path, "duracloud-config.properties"])
   content = templatefile("${path.module}/resources/duracloud-config.properties.tpl",
-                  merge(local.cloud_init_props,
-                        module.common_parameters.all,
-                        { database_host = data.aws_db_instance.database.address,
-                          database_port = data.aws_db_instance.database.port }))
+    merge(local.cloud_init_props,
+      module.common_parameters.all,
+      { database_host = data.aws_db_instance.database.address,
+  database_port = data.aws_db_instance.database.port }))
 }
 
 data "aws_iam_instance_profile" "duracloud" {
@@ -47,7 +47,7 @@ data "aws_subnet" "duracloud_public_b" {
 # configure database users
 
 data "aws_db_instance" "database" {
-  db_instance_identifier =  "${var.stack_name}-db-instance"
+  db_instance_identifier = "${var.stack_name}-db-instance"
 }
 
 
@@ -58,21 +58,21 @@ resource "aws_security_group" "duracloud_load_balancer" {
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
     from_port   = 80
-    to_port     = 80 
+    to_port     = 80
     protocol    = "tcp"
   }
 
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 22 
+    from_port   = 22
     to_port     = 22
     protocol    = "tcp"
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -94,16 +94,16 @@ resource "aws_security_group" "duracloud_beanstalk" {
 
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
-    from_port   = 443 
+    from_port   = 443
     to_port     = 443
     protocol    = "tcp"
   }
 
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -117,16 +117,16 @@ resource "aws_security_group" "duracloud_beanstalk_instance" {
   vpc_id = data.aws_vpc.duracloud.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80 
-    protocol    = "tcp"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
     security_groups = [aws_security_group.duracloud_beanstalk.id]
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -159,9 +159,9 @@ resource "aws_elastic_beanstalk_application" "duracloud" {
 
 resource "aws_elastic_beanstalk_application_version" "default" {
   name        = var.duracloud_zip
-  application = aws_elastic_beanstalk_application.duracloud.name 
+  application = aws_elastic_beanstalk_application.duracloud.name
   description = "${var.duracloud_zip} application"
-  bucket      = module.common_parameters.all["artifact_bucket"] 
+  bucket      = module.common_parameters.all["artifact_bucket"]
   key         = var.duracloud_zip
 }
 
@@ -176,7 +176,7 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
     name      = "VPCId"
     value     = data.aws_vpc.duracloud.id
   }
-  
+
   setting {
     namespace = "aws:ec2:vpc"
     name      = "Subnets"
@@ -185,20 +185,20 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
-    name      = "IamInstanceProfile" 
-    value     =  data.aws_iam_instance_profile.duracloud.name
+    name      = "IamInstanceProfile"
+    value     = data.aws_iam_instance_profile.duracloud.name
   }
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "EC2KeyName"
-    value     = var.ec2_keypair 
+    value     = var.ec2_keypair
   }
 
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "S3_CONFIG_BUCKET"
-    value     = module.common_parameters.all["config_bucket"] 
+    value     = module.common_parameters.all["config_bucket"]
   }
 
   setting {
@@ -216,27 +216,27 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
 
 
 resource "aws_elastic_beanstalk_environment" "duracloud" {
-  name                = "${var.stack_name}-core"
-  application         = aws_elastic_beanstalk_application.duracloud.name
-  template_name       = aws_elastic_beanstalk_configuration_template.config.name
-  version_label       = var.duracloud_zip
+  name          = "${var.stack_name}-core"
+  application   = aws_elastic_beanstalk_application.duracloud.name
+  template_name = aws_elastic_beanstalk_configuration_template.config.name
+  version_label = var.duracloud_zip
 
   setting {
     namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"
     name      = "JVM Options"
-    value = "-Dduracloud.config.file=s3://${aws_s3_object.duracloud_config_properties.bucket}/${aws_s3_object.duracloud_config_properties.key} -Dlog.level=INFO"
+    value     = "-Dduracloud.config.file=s3://${aws_s3_object.duracloud_config_properties.bucket}/${aws_s3_object.duracloud_config_properties.key} -Dlog.level=INFO"
   }
 
   setting {
     namespace = "aws:elbv2:listener:443"
-    name = "SSLCertificateArns"
-    value = module.common_parameters.all["certificate_arn"]
+    name      = "SSLCertificateArns"
+    value     = module.common_parameters.all["certificate_arn"]
   }
 
   setting {
     namespace = "aws:elbv2:listener:443"
-    name = "Protocol"
-    value = "HTTPS"
+    name      = "Protocol"
+    value     = "HTTPS"
   }
 
   setting {
@@ -244,7 +244,7 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
     name      = "InstanceType"
     value     = var.duracloud_instance_class
   }
- 
+
 }
 
 resource "aws_alb_target_group" "duracloud" {
@@ -254,8 +254,8 @@ resource "aws_alb_target_group" "duracloud" {
   protocol    = "TCP"
   vpc_id      = data.aws_vpc.duracloud.id
   stickiness {
-      type        = "app_cookie"
-      cookie_name = "jsessionid"
+    type        = "app_cookie"
+    cookie_name = "jsessionid"
   }
 }
 

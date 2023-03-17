@@ -1,0 +1,4 @@
+# git config --global blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Run Terraform fmt
+aff218486bba5e4af7b444eadd11db4f0b529535

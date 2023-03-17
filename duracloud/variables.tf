@@ -1,5 +1,5 @@
 variable "duracloud_s3_config_path" {
-  default = ""
+  default     = ""
   description = "An optional path within the bucket to a sub-directory containing your duracloud config files e.g. /optional/path"
 }
 

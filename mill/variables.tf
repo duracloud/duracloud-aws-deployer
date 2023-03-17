@@ -9,7 +9,7 @@ variable "mill_version" {
 }
 
 variable "mill_s3_config_path" {
-  default = "/"
+  default     = "/"
   description = "An optional path within the config bucket to a sub-directory containing your mill config files e.g. /optional/path"
 }
 

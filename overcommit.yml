@@ -1,0 +1,6 @@
+PreCommit:
+  Terraform:
+    enabled: true
+    command: ['terraform', 'fmt']
+    flags: ['-check', '-recursive']
+    install_command: tfenv install

@@ -11,6 +11,19 @@ in GitHub (TODO).
 
 ## Repository setup
 
+### Install local dependencies (optional)
+
+First install:
+
+- [Rbenv](https://github.com/rbenv/rbenv)
+- [Tfenv](https://github.com/tfutils/tfenv)
+
+Then run:
+
+```bash
+make install
+```
+
 ### Sync with upstream
 
 To work with the upstream DuraCloud deployer project:

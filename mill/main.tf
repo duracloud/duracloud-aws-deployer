@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 module "common_parameters" {
   source = "../modules/common_parameters"
 }
@@ -34,7 +36,7 @@ data "aws_ami" "docker_ami" {
 locals {
   node_image_id = data.aws_ami.docker_ami.id
   cloud_init_props = {
-    aws_region              = var.aws_region
+    aws_region              = data.aws_region.current.name
     mill_s3_config_location = join("", [module.common_parameters.all["config_bucket"], var.mill_s3_config_path])
     efs_dns_name            = aws_efs_file_system.duracloud_mill.dns_name
     mill_docker_container   = var.mill_docker_container

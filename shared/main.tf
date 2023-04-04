@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 module "common_parameters" {
   source = "../modules/common_parameters"
 }
@@ -112,7 +114,7 @@ resource "aws_subnet" "duracloud_public_subnet_a" {
 
   vpc_id                  = aws_vpc.duracloud.id
   cidr_block              = "10.0.0.0/24"
-  availability_zone       = "${var.aws_region}a"
+  availability_zone       = "${data.aws_region.current.name}a"
   map_public_ip_on_launch = true
 
   tags = {
@@ -124,7 +126,7 @@ resource "aws_subnet" "duracloud_public_subnet_b" {
 
   vpc_id                  = aws_vpc.duracloud.id
   cidr_block              = "10.0.3.0/24"
-  availability_zone       = "${var.aws_region}b"
+  availability_zone       = "${data.aws_region.current.name}b"
   map_public_ip_on_launch = true
 
   tags = {
@@ -136,7 +138,7 @@ resource "aws_subnet" "duracloud_subnet_a" {
 
   vpc_id            = aws_vpc.duracloud.id
   cidr_block        = "10.0.1.0/24"
-  availability_zone = "${var.aws_region}a"
+  availability_zone = "${data.aws_region.current.name}a"
 
 
   tags = {
@@ -148,7 +150,7 @@ resource "aws_subnet" "duracloud_subnet_b" {
 
   vpc_id            = aws_vpc.duracloud.id
   cidr_block        = "10.0.2.0/24"
-  availability_zone = "${var.aws_region}b"
+  availability_zone = "${data.aws_region.current.name}b"
 
   tags = {
     Name = "${var.stack_name}-subnet-b"

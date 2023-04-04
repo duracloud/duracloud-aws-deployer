@@ -1,10 +1,12 @@
+data "aws_region" "current" {}
+
 module "common_parameters" {
   source = "../modules/common_parameters"
 }
 
 locals {
   cloud_init_props = {
-    aws_region = var.aws_region
+    aws_region = data.aws_region.current.name
   }
 }
 

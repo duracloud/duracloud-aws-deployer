@@ -22,7 +22,7 @@ resource "aws_s3_object" "mc_config_properties" {
 }
 
 data "aws_iam_instance_profile" "duracloud" {
-  name = "duracloud-instance-profile"
+  name = "${var.stack_name}-dc-ip"
 }
 
 
@@ -146,7 +146,7 @@ data "aws_iam_role" "beanstalk_service" {
 }
 
 resource "aws_elastic_beanstalk_application" "mc" {
-  name        = "DuraCloud Management Console"
+  name        = "DuraCloud Management Console (${var.stack_name})"
   description = "DuraCloud Management Console Beanstalk Application (${var.stack_name})"
 
   appversion_lifecycle {

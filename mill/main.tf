@@ -66,7 +66,7 @@ resource "aws_s3_object" "mill_config_properties" {
 
 
 data "aws_iam_instance_profile" "duracloud" {
-  name = "duracloud-instance-profile"
+  name = "${var.stack_name}-dc-ip"
 }
 
 

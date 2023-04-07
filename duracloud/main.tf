@@ -21,7 +21,7 @@ resource "aws_s3_object" "duracloud_config_properties" {
 }
 
 data "aws_iam_instance_profile" "duracloud" {
-  name = "duracloud-instance-profile"
+  name = "${var.stack_name}-dc-ip"
 }
 
 
@@ -145,7 +145,7 @@ data "aws_iam_role" "beanstalk_service" {
 }
 
 resource "aws_elastic_beanstalk_application" "duracloud" {
-  name        = "DuraCloud"
+  name        = "DuraCloud (${var.stack_name})"
   description = "DuraCloud Beanstalk Application (${var.stack_name})"
 
   appversion_lifecycle {
@@ -250,7 +250,7 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
 }
 
 resource "aws_alb_target_group" "duracloud" {
-  name        = "duracloud-alb-target-group"
+  name        = "${var.stack_name}-duracloud"
   target_type = "alb"
   port        = 80
   protocol    = "TCP"

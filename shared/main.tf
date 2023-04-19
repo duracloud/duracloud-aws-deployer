@@ -9,7 +9,7 @@ module "sumo" {
 }
 
 resource "aws_iam_policy" "policy_one" {
-  name = "policy-618033"
+  name = "${var.stack_name}-policy-618033"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -28,7 +28,7 @@ resource "aws_iam_policy" "policy_one" {
 }
 
 resource "aws_iam_role" "beanstalk_service_role" {
-  name                  = "aws-beanstalk-service-role"
+  name                  = "${var.stack_name}-bs-srv-role"
   force_detach_policies = true
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -69,7 +69,7 @@ resource "aws_iam_policy_attachment" "beanstalk_managed_updates_customer_role_po
 
 resource "aws_iam_role" "duracloud_role" {
 
-  name                  = "duracloud-role"
+  name                  = "${var.stack_name}-duracloud-role"
   force_detach_policies = true
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -93,11 +93,11 @@ resource "aws_iam_role" "duracloud_role" {
 
 resource "aws_iam_instance_profile" "duracloud_instance_profile" {
 
-  name = "duracloud-instance-profile"
+  name = "${var.stack_name}-dc-ip"
   role = aws_iam_role.duracloud_role.name
 
   tags = {
-    Name = "${var.stack_name}-instance-profile"
+    Name = "${var.stack_name}-duracloud-instance-profile"
   }
 }
 

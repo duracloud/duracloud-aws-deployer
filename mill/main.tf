@@ -4,9 +4,49 @@ module "common_parameters" {
   source = "../modules/common_parameters"
 }
 
+
+
 resource "aws_efs_file_system" "duracloud_mill" {
   tags = {
     Name = "${var.stack_name}-efs"
+  }
+}
+
+resource "aws_efs_mount_target" "mount_target_a" {
+  file_system_id  = aws_efs_file_system.duracloud_mill.id
+  subnet_id       = data.aws_subnet.duracloud_a.id
+  security_groups = [aws_security_group.efs_sg.id]
+}
+
+resource "aws_efs_mount_target" "mount_target_b" {
+  file_system_id  = aws_efs_file_system.duracloud_mill.id
+  subnet_id       = data.aws_subnet.duracloud_b.id
+  security_groups = [aws_security_group.efs_sg.id]
+}
+
+
+resource "aws_security_group" "efs_sg" {
+  name   = "efs_sg"
+  vpc_id = data.aws_vpc.duracloud.id
+
+  ingress {
+    description     = "from mill sg"
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "tcp"
+    security_groups = [aws_security_group.mill_instance.id]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "${var.stack_name}-efs-security-group"
   }
 }
 

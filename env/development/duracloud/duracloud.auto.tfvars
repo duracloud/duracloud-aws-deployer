@@ -1,1 +1,1 @@
-duracloud_zip = "duracloud-elasticbeanstalk-7.2.0-SNAPSHOT-827727.zip"
+duracloud_zip = "duracloud-7.2.0-SNAPSHOT-6faaeef.zip"

@@ -1,1 +1,1 @@
-mill_version = "4.1.0"
+mill_version = "4.2.0-SNAPSHOT"

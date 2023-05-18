@@ -1,1 +1,1 @@
-mc_war = "ama-7.1.1.war"
+mc_war = "ama-7.2.0.war"

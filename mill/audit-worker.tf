@@ -1,7 +1,7 @@
 # config the audit worker launch config, autoscaling group, alarms, etc
 
 resource "aws_launch_configuration" "audit_worker_launch_config" {
-  name_prefix          = "audit-worker-launch-config_"
+  name_prefix          = "${var.stack_name}-audit-worker-launch-config_"
   image_id             = local.node_image_id
   instance_type        = var.worker_instance_class
   iam_instance_profile = data.aws_iam_instance_profile.duracloud.name
@@ -19,16 +19,15 @@ resource "aws_launch_configuration" "audit_worker_launch_config" {
 }
 
 resource "aws_autoscaling_group" "audit_worker_asg" {
-  name                 = "audit-worker-asg"
+  name                 = "${var.stack_name}-audit-worker-asg"
   launch_configuration = aws_launch_configuration.audit_worker_launch_config.name
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id]
   max_size             = 10
   min_size             = 1
-  //availability_zones = [data.aws_subnet.duracloud_a.availability_zone, data.aws_subnet.duracloud_b.availability_zone ]
 }
 
 resource "aws_autoscaling_policy" "audit_worker_scale_up" {
-  name                   = "audit_worker_scale_up"
+  name                   = "${var.stack_name}-audit_worker_scale_up"
   scaling_adjustment     = 1
   adjustment_type        = "ChangeInCapacity"
   policy_type            = "SimpleScaling"
@@ -37,7 +36,7 @@ resource "aws_autoscaling_policy" "audit_worker_scale_up" {
 }
 
 resource "aws_autoscaling_policy" "audit_worker_scale_down" {
-  name                   = "audit_worker_scale_down"
+  name                   = "${var.stack_name}-audit_worker_scale_down"
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
   policy_type            = "SimpleScaling"
@@ -46,7 +45,7 @@ resource "aws_autoscaling_policy" "audit_worker_scale_down" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "audit_worker_scale_up_alarm" {
-  alarm_name          = "large-audit_queue-alarm"
+  alarm_name          = "${var.stack_name}-large-audit_queue-alarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
   metric_name         = "ApproximateNumberOfMessagesVisible"
@@ -64,7 +63,7 @@ resource "aws_cloudwatch_metric_alarm" "audit_worker_scale_up_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "audit_worker_scale_down_alarm" {
-  alarm_name          = "small-audit-queue-alarm"
+  alarm_name          = "${var.stack_name}-small-audit-queue-alarm"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = "4"
   metric_name         = "ApproximateNumberOfMessagesVisible"

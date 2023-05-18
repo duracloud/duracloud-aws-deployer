@@ -18,7 +18,7 @@ terraform {
 }
 
 provider "aws" {
-  region              = "us-west-2"
+  region              = "us-east-1"
   allowed_account_ids = ["863649442906"]
 
   assume_role {

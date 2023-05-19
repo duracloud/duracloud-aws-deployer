@@ -1,7 +1,7 @@
 # config the high priority dup worker launch config, autoscaling group, alarms, etc
 
 resource "aws_launch_configuration" "high_priority_dup_worker_launch_config" {
-  name_prefix          = "high_priority_dup-worker-launch-config_"
+  name_prefix          = "${var.stack_name}-high_priority_dup-worker-launch-config_"
   image_id             = local.node_image_id
   instance_type        = var.worker_instance_class
   iam_instance_profile = data.aws_iam_instance_profile.duracloud.name
@@ -19,16 +19,15 @@ resource "aws_launch_configuration" "high_priority_dup_worker_launch_config" {
 }
 
 resource "aws_autoscaling_group" "high_priority_dup_worker_asg" {
-  name                 = "high_priority_dup-worker-asg"
+  name                 = "${var.stack_name}-high_priority_dup-worker-asg"
   launch_configuration = aws_launch_configuration.high_priority_dup_worker_launch_config.name
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id]
   max_size             = 10
   min_size             = 0
-  //availability_zones = [data.aws_subnet.duracloud_a.availability_zone, data.aws_subnet.duracloud_b.availability_zone ]
 }
 
 resource "aws_autoscaling_policy" "high_priority_dup_worker_scale_up" {
-  name                   = "high_priority_dup_worker_scale_up"
+  name                   = "${var.stack_name}-high_priority_dup_worker_scale_up"
   scaling_adjustment     = 1
   adjustment_type        = "ChangeInCapacity"
   policy_type            = "SimpleScaling"
@@ -37,7 +36,7 @@ resource "aws_autoscaling_policy" "high_priority_dup_worker_scale_up" {
 }
 
 resource "aws_autoscaling_policy" "high_priority_dup_worker_scale_down" {
-  name                   = "high_priority_dup_worker_scale_down"
+  name                   = "${var.stack_name}-high_priority_dup_worker_scale_down"
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
   policy_type            = "SimpleScaling"
@@ -46,7 +45,7 @@ resource "aws_autoscaling_policy" "high_priority_dup_worker_scale_down" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "high_priority_dup_worker_scale_up_alarm" {
-  alarm_name          = "large-high_priority_dup_queue-alarm"
+  alarm_name          = "${var.stack_name}-large-high_priority_dup_queue-alarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
   metric_name         = "ApproximateNumberOfMessagesVisible"
@@ -64,7 +63,7 @@ resource "aws_cloudwatch_metric_alarm" "high_priority_dup_worker_scale_up_alarm"
 }
 
 resource "aws_cloudwatch_metric_alarm" "high_priority_dup_worker_scale_down_alarm" {
-  alarm_name          = "small-high_priority_dup-queue-alarm"
+  alarm_name          = "${var.stack_name}-small-high_priority_dup-queue-alarm"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = "4"
   metric_name         = "ApproximateNumberOfMessagesVisible"
@@ -80,6 +79,3 @@ resource "aws_cloudwatch_metric_alarm" "high_priority_dup_worker_scale_down_alar
   alarm_description = "This metric monitors high_priority_dup queue size"
   alarm_actions     = [aws_autoscaling_policy.high_priority_dup_worker_scale_down.arn]
 }
-
-
-

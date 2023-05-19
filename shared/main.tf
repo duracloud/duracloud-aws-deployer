@@ -126,7 +126,7 @@ resource "aws_subnet" "duracloud_public_subnet_b" {
 
   vpc_id                  = aws_vpc.duracloud.id
   cidr_block              = "10.0.3.0/24"
-  availability_zone       = "${data.aws_region.current.name}b"
+  availability_zone       = "${data.aws_region.current.name}c"
   map_public_ip_on_launch = true
 
   tags = {
@@ -235,8 +235,12 @@ resource "aws_eip" "duracloud_nat" {
 
 resource "aws_db_subnet_group" "duracloud_db_subnet_group" {
 
-  name       = "${var.stack_name}-db-subnet-group"
+  name       = "${var.stack_name}-duracloud-db-subnet-group"
   subnet_ids = [aws_subnet.duracloud_subnet_a.id, aws_subnet.duracloud_subnet_b.id]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 
   tags = {
     Name = "${var.stack_name}-db-subnet-group"
@@ -246,7 +250,7 @@ resource "aws_db_subnet_group" "duracloud_db_subnet_group" {
 resource "aws_security_group" "duracloud_database" {
 
   vpc_id = aws_vpc.duracloud.id
-  name   = "duracloud-${var.stack_name}-db-sg"
+  name   = "${var.stack_name}-duracloud-db-sg"
 
   ingress {
     cidr_blocks = ["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", ]
@@ -262,6 +266,10 @@ resource "aws_security_group" "duracloud_database" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags = {
     Name = "duracloud-${var.stack_name}-db-sg"
   }
@@ -269,8 +277,6 @@ resource "aws_security_group" "duracloud_database" {
 
 
 resource "aws_db_instance" "duracloud" {
-
-  depends_on                = [aws_db_subnet_group.duracloud_db_subnet_group]
   db_name                   = "duracloud"
   identifier                = "${var.stack_name}-db-instance"
   allocated_storage         = 20
@@ -336,9 +342,9 @@ data "aws_ami" "amazon_2" {
 }
 
 resource "aws_sns_topic" "duracloud_account" {
-  name = "duracloud-account-topic"
+  name = "${var.stack_name}-duracloud-account-sns-topic"
   tags = {
-    Name = "${var.stack_name}-account-topic"
+    Name = "${var.stack_name}-account-sns-topic"
   }
 }
 

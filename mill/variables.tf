@@ -21,12 +21,12 @@ variable "sentinel_instance_class" {
 
 variable "worker_instance_class" {
   description = "The instance size of worker ec2 instance class"
-  default     = "m5.large"
+  default     = "m6i.large"
 }
 
 variable "worker_spot_price" {
   description = "The max spot price for work instances"
-  default     = ".10"
+  default     = ".12"
 }
 
 variable "ec2_keypair" {

@@ -1,6 +1,6 @@
 # config the sentinel
 resource "aws_launch_configuration" "sentinel_launch_config" {
-  name_prefix          = "sentinel-launch-config_"
+  name_prefix          = "${var.stack_name}-sentinel-launch-config_"
   image_id             = local.node_image_id
   instance_type        = var.sentinel_instance_class
   iam_instance_profile = data.aws_iam_instance_profile.duracloud.name
@@ -17,10 +17,9 @@ resource "aws_launch_configuration" "sentinel_launch_config" {
 }
 
 resource "aws_autoscaling_group" "sentinel_asg" {
-  name                 = "sentinel-asg"
+  name                 = "${var.stack_name}-sentinel-asg"
   launch_configuration = aws_launch_configuration.sentinel_launch_config.name
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id]
   max_size             = 1
   min_size             = 1
-  //availability_zones = [data.aws_subnet.duracloud_a.availability_zone, data.aws_subnet.duracloud_b.availability_zone ]
 }

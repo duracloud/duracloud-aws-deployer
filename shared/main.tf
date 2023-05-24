@@ -157,6 +157,28 @@ resource "aws_subnet" "duracloud_subnet_b" {
   }
 }
 
+resource "aws_subnet" "duracloud_subnet_c" {
+
+  vpc_id            = aws_vpc.duracloud.id
+  cidr_block        = "10.0.4.0/24"
+  availability_zone = "${data.aws_region.current.name}c"
+
+  tags = {
+    Name = "${var.stack_name}-subnet-c"
+  }
+}
+
+resource "aws_subnet" "duracloud_subnet_d" {
+
+  vpc_id            = aws_vpc.duracloud.id
+  cidr_block        = "10.0.5.0/24"
+  availability_zone = "${data.aws_region.current.name}d"
+
+  tags = {
+    Name = "${var.stack_name}-subnet-d"
+  }
+}
+
 resource "aws_route_table" "duracloud_nat" {
 
   vpc_id = aws_vpc.duracloud.id
@@ -184,9 +206,23 @@ resource "aws_route_table_association" "duracloud_nat_b" {
   route_table_id = aws_route_table.duracloud_nat.id
 }
 
-resource "aws_route_table_association" "duracloud" {
-
+resource "aws_route_table_association" "duracloud_a" {
   subnet_id      = aws_subnet.duracloud_subnet_a.id
+  route_table_id = aws_route_table.duracloud.id
+}
+
+resource "aws_route_table_association" "duracloud_b" {
+  subnet_id      = aws_subnet.duracloud_subnet_b.id
+  route_table_id = aws_route_table.duracloud.id
+}
+
+resource "aws_route_table_association" "duracloud_c" {
+  subnet_id      = aws_subnet.duracloud_subnet_c.id
+  route_table_id = aws_route_table.duracloud.id
+}
+
+resource "aws_route_table_association" "duracloud_d" {
+  subnet_id      = aws_subnet.duracloud_subnet_d.id
   route_table_id = aws_route_table.duracloud.id
 }
 
@@ -253,7 +289,7 @@ resource "aws_security_group" "duracloud_database" {
   name   = "${var.stack_name}-duracloud-db-sg"
 
   ingress {
-    cidr_blocks = ["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", ]
+    cidr_blocks = ["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", "10.0.4.0/24", "10.0.5.0/24"]
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
@@ -279,7 +315,7 @@ resource "aws_security_group" "duracloud_database" {
 resource "aws_db_instance" "duracloud" {
   db_name                   = "duracloud"
   identifier                = "${var.stack_name}-db-instance"
-  allocated_storage         = 20
+  allocated_storage         = var.db_allocated_storage
   storage_type              = "gp2"
   engine                    = "mysql"
   engine_version            = "8.0"
@@ -290,6 +326,8 @@ resource "aws_db_instance" "duracloud" {
   db_subnet_group_name      = aws_db_subnet_group.duracloud_db_subnet_group.name
   vpc_security_group_ids    = [aws_security_group.duracloud_database.id]
   skip_final_snapshot       = "true"
+  deletion_protection       = var.db_deletion_protection_enabled
+  multi_az                  = var.db_multi_az_enabled
   final_snapshot_identifier = "final-duracloud-${var.stack_name}"
 
   tags = {

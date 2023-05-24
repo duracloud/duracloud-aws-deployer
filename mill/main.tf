@@ -132,6 +132,23 @@ data "aws_subnet" "duracloud_b" {
   }
 }
 
+data "aws_subnet" "duracloud_c" {
+  vpc_id = data.aws_vpc.duracloud.id
+  tags = {
+    Name = "${var.stack_name}-subnet-c"
+  }
+}
+
+data "aws_subnet" "duracloud_d" {
+  vpc_id = data.aws_vpc.duracloud.id
+
+  tags = {
+    Name = "${var.stack_name}-subnet-d"
+  }
+}
+
+
+
 resource "aws_security_group" "mill_instance" {
 
   vpc_id = data.aws_vpc.duracloud.id

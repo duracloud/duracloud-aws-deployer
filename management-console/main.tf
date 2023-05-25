@@ -172,7 +172,7 @@ resource "aws_elastic_beanstalk_application_version" "default" {
 resource "aws_elastic_beanstalk_configuration_template" "config" {
   name                = "mc-config"
   application         = aws_elastic_beanstalk_application.mc.name
-  solution_stack_name = "64bit Amazon Linux 2 v4.2.16 running Tomcat 8.5 Corretto 11"
+  solution_stack_name = "64bit Amazon Linux 2 v4.3.7 running Tomcat 8.5 Corretto 11"
 
   setting {
     namespace = "aws:ec2:vpc"

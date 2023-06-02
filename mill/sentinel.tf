@@ -19,7 +19,7 @@ resource "aws_launch_configuration" "sentinel_launch_config" {
 resource "aws_autoscaling_group" "sentinel_asg" {
   name                 = "${var.stack_name}-sentinel-asg"
   launch_configuration = aws_launch_configuration.sentinel_launch_config.name
-  vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id]
+  vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id, data.aws_subnet.duracloud_c.id, data.aws_subnet.duracloud_d.id]
   max_size             = 1
   min_size             = 1
 }

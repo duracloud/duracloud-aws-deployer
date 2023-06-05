@@ -154,10 +154,6 @@ resource "aws_elastic_beanstalk_application" "mc" {
     max_count             = 128
     delete_source_from_s3 = true
   }
-
-  tags = {
-    Name = "${var.stack_name}-eb-mc-application"
-  }
 }
 
 resource "aws_elastic_beanstalk_application_version" "default" {
@@ -215,14 +211,26 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
     name      = "LoadBalancerType"
     value     = "application"
   }
-}
 
+  setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
+    name      = "HealthCheckPath"
+    value     = "/login"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
+    name      = "StickinessEnabled"
+    value     = "true"
+  }
+}
 
 resource "aws_elastic_beanstalk_environment" "mc" {
   name          = "${var.stack_name}-management-console"
   application   = aws_elastic_beanstalk_application.mc.name
   template_name = aws_elastic_beanstalk_configuration_template.config.name
   version_label = var.mc_war
+
 
   setting {
     namespace = "aws:elasticbeanstalk:container:tomcat:jvmoptions"
@@ -242,11 +250,15 @@ resource "aws_elastic_beanstalk_environment" "mc" {
     value     = "HTTPS"
   }
 
-
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "InstanceType"
     value     = var.mc_instance_class
   }
 
+  setting {
+    namespace = "aws:elasticbeanstalk:application"
+    name      = "Application Healthcheck URL"
+    value     = "/login"
+  }
 }

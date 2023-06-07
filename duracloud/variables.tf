@@ -20,3 +20,13 @@ variable "ec2_keypair" {
 variable "stack_name" {
   description = "The name of the duracloud stack."
 }
+
+variable "minimum_instance_count" {
+  description = "The minimum number of instances to run"
+  default     = 2
+}
+
+variable "maximum_instance_count" {
+  description = "The minimum number of instances to run"
+  default     = 6
+}

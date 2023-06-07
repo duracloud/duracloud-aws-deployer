@@ -257,4 +257,16 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
     name      = "InstanceType"
     value     = var.duracloud_instance_class
   }
+
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MinSize"
+    value     = var.minimum_instance_count
+  }
+
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MaxSize"
+    value     = var.maximum_instance_count
+  }
 }

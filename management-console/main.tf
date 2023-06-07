@@ -261,4 +261,16 @@ resource "aws_elastic_beanstalk_environment" "mc" {
     name      = "Application Healthcheck URL"
     value     = "/login"
   }
+
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MinSize"
+    value     = var.minimum_instance_count
+  }
+
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MaxSize"
+    value     = var.maximum_instance_count
+  }
 }

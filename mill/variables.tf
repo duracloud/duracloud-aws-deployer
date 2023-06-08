@@ -37,3 +37,12 @@ variable "stack_name" {
   description = "The name of the duracloud stack."
 }
 
+variable "dup_frequency" {
+  description = "The frequency of the start of a duplication run. Format  [0-9][d - day, m - month].  So a frequency of 1 month would be 1m."
+  default     = "1m"
+}
+
+variable "bit_frequency" {
+  description = "The frequency of the start of a bit integrity check run. Format  [0-9][d - day, m - month].  So a frequency of 1 month would be 1m."
+  default     = "3m"
+}

@@ -58,7 +58,7 @@ max-workers=20
 #############################
 
 # The frequency for a complete run through all store policies. Specify in hours (e.g. 3h), days (e.g. 3d), or months (e.g. 3m). Default is 1m - i.e. one month
-looping.dup.frequency=0m
+looping.dup.frequency=${dup_frequency}
 
 # Indicates how large the task queue should be allowed to grow before the Looping Task Producer quits.
 looping.dup.max-task-queue-size=200000
@@ -68,7 +68,7 @@ looping.dup.max-task-queue-size=200000
 #############################
 
 # The frequency for a complete run through all store policies. Specify in hours (e.g. 3h), days (e.g. 3d), or months (e.g. 3m). Default is 1m - i.e. one month
-looping.bit.frequency=0d
+looping.bit.frequency=${bit_frequency}
 
 # Indicates how large the task queue should be allowed to grow before the Looping Task Producer quits.
 looping.bit.max-task-queue-size=200000

@@ -214,8 +214,13 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
     name      = "LoadBalancerType"
     value     = "application"
   }
-}
 
+  setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
+    name      = "StickinessEnabled"
+    value     = "true"
+  }
+}
 
 resource "aws_elastic_beanstalk_environment" "duracloud" {
   name          = "${var.stack_name}-core"
@@ -247,22 +252,22 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
     value     = var.duracloud_instance_class
   }
 
-}
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MinSize"
+    value     = var.minimum_instance_count
+  }
 
-resource "aws_alb_target_group" "duracloud" {
-  name        = "${var.stack_name}-duracloud"
-  target_type = "alb"
-  port        = 80
-  protocol    = "TCP"
-  vpc_id      = data.aws_vpc.duracloud.id
-  stickiness {
-    type        = "app_cookie"
-    cookie_name = "jsessionid"
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MaxSize"
+    value     = var.maximum_instance_count
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
+    name      = "HealthCheckPath"
+    value     = "/duradmin/login"
   }
 }
 
-resource "aws_alb_target_group_attachment" "duracloud" {
-  target_group_arn = aws_alb_target_group.duracloud.arn
-  target_id        = aws_elastic_beanstalk_environment.duracloud.load_balancers[0]
-  port             = 80
-}

@@ -217,12 +217,6 @@ resource "aws_elastic_beanstalk_configuration_template" "config" {
 
   setting {
     namespace = "aws:elasticbeanstalk:environment:process:default"
-    name      = "HealthCheckPath"
-    value     = "/login"
-  }
-
-  setting {
-    namespace = "aws:elasticbeanstalk:environment:process:default"
     name      = "StickinessEnabled"
     value     = "true"
   }
@@ -269,4 +263,11 @@ resource "aws_elastic_beanstalk_environment" "duracloud" {
     name      = "MaxSize"
     value     = var.maximum_instance_count
   }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
+    name      = "HealthCheckPath"
+    value     = "/duradmin/login"
+  }
 }
+

@@ -22,7 +22,7 @@ resource "aws_autoscaling_group" "bit_worker_asg" {
   name                 = "${var.stack_name}-bit-worker-asg"
   launch_configuration = aws_launch_configuration.bit_worker_launch_config.name
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id, data.aws_subnet.duracloud_c.id, data.aws_subnet.duracloud_d.id]
-  max_size             = 10
+  max_size             = var.bit_worker_max
   min_size             = 0
 }
 

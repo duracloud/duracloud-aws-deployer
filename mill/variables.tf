@@ -46,3 +46,23 @@ variable "bit_frequency" {
   description = "The frequency of the start of a bit integrity check run. Format  [0-9][d - day, m - month].  So a frequency of 1 month would be 1m."
   default     = "3m"
 }
+
+variable "audit_worker_max" {
+  description = "The max number of audit worker instances that the mill should scale up to."
+  default     = 10
+}
+
+variable "bit_worker_max" {
+  description = "The max number of bit worker instances that the mill should scale up to."
+  default     = 10
+}
+
+variable "high_priority_dup_worker_max" {
+  description = "The max number of high priority duplication worker instances that the mill should scale up to."
+  default     = 10
+}
+
+variable "low_priority_dup_worker_max" {
+  description = "The max number of low priority duplication worker instances that the mill should scale up to."
+  default     = 10
+}

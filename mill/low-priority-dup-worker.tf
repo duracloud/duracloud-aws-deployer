@@ -22,7 +22,7 @@ resource "aws_autoscaling_group" "low_priority_dup_worker_asg" {
   name                 = "${var.stack_name}-low_priority_dup-worker-asg"
   launch_configuration = aws_launch_configuration.low_priority_dup_worker_launch_config.name
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id, data.aws_subnet.duracloud_c.id, data.aws_subnet.duracloud_d.id]
-  max_size             = 10
+  max_size             = var.low_priority_dup_worker_max
   min_size             = 0
 }
 

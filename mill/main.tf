@@ -101,7 +101,12 @@ resource "aws_s3_object" "mill_config_properties" {
         bit_report_queue_name        = aws_sqs_queue.bit_report.name,
         bit_error_queue_name         = aws_sqs_queue.bit_error.name,
         dead_letter_queue_name       = aws_sqs_queue.dead_letter.name,
-  storage_stats_queue_name = aws_sqs_queue.storage_stats.name }))
+        dup_frequency                = var.dup_frequency,
+        bit_frequency                = var.bit_frequency,
+        storage_stats_queue_name     = aws_sqs_queue.storage_stats.name
+      }
+    )
+  )
 }
 
 

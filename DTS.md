@@ -47,8 +47,8 @@ To incorporate upstream changes into the dts downstream fork:
 ```bash
 git fetch --all
 git checkout main
-git rebase upstream/main
-git push --force origin main
+git merge upstream/main
+git push origin main
 ```
 
 The upstream and downstream main branches are now equivalent.

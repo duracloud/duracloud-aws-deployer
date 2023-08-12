@@ -261,6 +261,26 @@ resource "aws_internet_gateway" "duracloud" {
   }
 }
 
+# https://github.com/terraform-aws-modules/terraform-aws-vpc/tree/master/modules/vpc-endpoints
+module "endpoints" {
+  source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+  version = "3.19.0"
+
+  vpc_id = aws_vpc.duracloud.id
+
+  endpoints = {
+    s3 = {
+      service         = "s3"
+      service_type    = "Gateway"
+      route_table_ids = toset([aws_route_table.duracloud_nat.id, aws_route_table.duracloud.id])
+    },
+  }
+
+  tags = {
+    Name = "${var.stack_name}-s3-endpoint"
+  }
+}
+
 resource "aws_eip" "duracloud_nat" {
   vpc = true
 

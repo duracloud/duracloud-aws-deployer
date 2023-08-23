@@ -52,7 +52,7 @@ resource "aws_cloudwatch_metric_alarm" "bit_report_worker_scale_up_alarm" {
   namespace           = "AWS/SQS"
   period              = "300"
   statistic           = "Average"
-  threshold           = "1"
+  threshold           = "0.5"
 
   dimensions = {
     QueueName = aws_sqs_queue.bit_report.name

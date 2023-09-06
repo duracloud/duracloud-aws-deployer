@@ -93,6 +93,6 @@ aws s3 cp --recursive s3://${mill_s3_config_location} $millHome/
 
 instanceId=`ls /var/lib/cloud/instances`
 
-docker run -d -it -v /sys/fs/cgroup/:/sys/fs/cgroup:ro --cap-add SYS_ADMIN -e HOST_NAME="${instance_prefix}-${node_type}-$instanceId" -e DOMAIN=${domain} -e NODE_TYPE="${node_type}" -e AWS_REGION="${aws_region}" -v $millHome:/mill-home  -v /efs:/efs --name=duracloud-mill  ${mill_docker_container}:${mill_version};
+docker run -d -it -v /sys/fs/cgroup/:/sys/fs/cgroup:ro --cap-add SYS_ADMIN -e HOST_NAME="${instance_prefix}-${node_type}-$instanceId" -e DOMAIN=${domain} -e NODE_TYPE="${node_type}" -e MAX_WORKER_THREADS="${max_worker_threads}" -e AWS_REGION="${aws_region}" -v $millHome:/mill-home  -v /efs:/efs --name=duracloud-mill  ${mill_docker_container}:${mill_version};
 
 --===============2205584129673038508==--

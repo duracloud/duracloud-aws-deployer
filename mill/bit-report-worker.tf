@@ -8,7 +8,11 @@ resource "aws_launch_configuration" "bit_report_worker_launch_config" {
   security_groups      = [aws_security_group.mill_instance.id]
   key_name             = var.ec2_keypair
   spot_price           = var.worker_spot_price
-  user_data            = templatefile("${path.module}/resources/cloud-init.tpl", merge(local.cloud_init_props, { node_type = "bit-report-worker" }))
+  user_data = templatefile("${path.module}/resources/cloud-init.tpl",
+    merge(local.cloud_init_props, {
+      node_type          = "bit-report-worker"
+      max_worker_threads = var.bit_report_max_worker_threads
+  }))
   root_block_device {
     volume_type = "gp2"
     volume_size = 20

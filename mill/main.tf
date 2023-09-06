@@ -83,6 +83,7 @@ locals {
     mill_version            = var.mill_version
     instance_prefix         = var.stack_name
     domain                  = "test.org"
+    max_worker_threads      = var.max_worker_threads
   }
 }
 

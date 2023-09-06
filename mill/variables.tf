@@ -66,3 +66,13 @@ variable "low_priority_dup_worker_max" {
   description = "The max number of low priority duplication worker instances that the mill should scale up to."
   default     = 10
 }
+
+variable "max_worker_threads" {
+  description = "The default max number of concurrent worker threads in a worker instance"
+  default     = 20
+}
+
+variable "bit_report_max_worker_threads" {
+  description = "The max number of worker threads for a bit report worker instance"
+  default     = 4
+}

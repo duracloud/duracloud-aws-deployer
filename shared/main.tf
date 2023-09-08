@@ -196,49 +196,48 @@ resource "aws_route_table" "duracloud" {
   }
 }
 
-resource "aws_route_table_association" "duracloud_nat_a" {
+resource "aws_route_table_association" "duracloud_public_a" {
   subnet_id      = aws_subnet.duracloud_public_subnet_a.id
-  route_table_id = aws_route_table.duracloud_nat.id
+  route_table_id = aws_route_table.duracloud.id
 }
 
-resource "aws_route_table_association" "duracloud_nat_b" {
+resource "aws_route_table_association" "duracloud_public_b" {
   subnet_id      = aws_subnet.duracloud_public_subnet_b.id
-  route_table_id = aws_route_table.duracloud_nat.id
+  route_table_id = aws_route_table.duracloud.id
 }
 
 resource "aws_route_table_association" "duracloud_a" {
   subnet_id      = aws_subnet.duracloud_subnet_a.id
-  route_table_id = aws_route_table.duracloud.id
+  route_table_id = aws_route_table.duracloud_nat.id
 }
 
 resource "aws_route_table_association" "duracloud_b" {
   subnet_id      = aws_subnet.duracloud_subnet_b.id
-  route_table_id = aws_route_table.duracloud.id
+  route_table_id = aws_route_table.duracloud_nat.id
 }
 
 resource "aws_route_table_association" "duracloud_c" {
   subnet_id      = aws_subnet.duracloud_subnet_c.id
-  route_table_id = aws_route_table.duracloud.id
+  route_table_id = aws_route_table.duracloud_nat.id
 }
 
 resource "aws_route_table_association" "duracloud_d" {
   subnet_id      = aws_subnet.duracloud_subnet_d.id
-  route_table_id = aws_route_table.duracloud.id
+  route_table_id = aws_route_table.duracloud_nat.id
 }
 
 resource "aws_route" "route2igc" {
-  route_table_id         = aws_route_table.duracloud_nat.id
+  route_table_id         = aws_route_table.duracloud.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.duracloud.id
 }
 
 resource "aws_route" "route2nat" {
 
-  route_table_id         = aws_route_table.duracloud.id
+  route_table_id         = aws_route_table.duracloud_nat.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.duracloud_nat.id
 }
-
 
 resource "aws_nat_gateway" "duracloud_nat" {
   allocation_id = aws_eip.duracloud_nat.id
@@ -248,7 +247,6 @@ resource "aws_nat_gateway" "duracloud_nat" {
     Name = "${var.stack_name}-nat-gateway"
   }
 
-  depends_on = [aws_internet_gateway.duracloud]
 }
 
 
@@ -415,5 +413,11 @@ resource "aws_instance" "bastion" {
   key_name                    = var.ec2_keypair
   tags = {
     Name = "${var.stack_name}-bastion"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      ami
+    ]
   }
 }

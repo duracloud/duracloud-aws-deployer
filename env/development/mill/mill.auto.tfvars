@@ -1,4 +1,4 @@
-mill_version                  = "4.2.0-SNAPSHOT"
+mill_version                  = "4.2.0"
 audit_worker_max              = 2
 bit_worker_max                = 1
 high_priority_dup_worker_max  = 1

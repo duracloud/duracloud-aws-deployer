@@ -90,6 +90,7 @@ locals {
     efs_dns_name            = aws_efs_file_system.duracloud_mill.dns_name
     mill_docker_container   = var.mill_docker_container
     mill_version            = var.mill_version
+    log_level               = var.log_level
     instance_prefix         = var.stack_name
     domain                  = "test.org"
     max_worker_threads      = var.max_worker_threads

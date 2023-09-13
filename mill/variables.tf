@@ -8,6 +8,11 @@ variable "mill_version" {
   default     = "latest"
 }
 
+variable "log_level" {
+  description = "The java logging level for the mill nodes."
+  default     = "INFO"
+}
+
 variable "mill_s3_config_path" {
   default     = "/"
   description = "An optional path within the config bucket to a sub-directory containing your mill config files e.g. /optional/path"

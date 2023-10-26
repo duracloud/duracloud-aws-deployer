@@ -8,6 +8,11 @@ variable "duracloud_zip" {
 
 }
 
+variable "solution_stack" {
+  description = "The AWS Solution Stack to use with the Elastic Beanstalk."
+  default     = "64bit Amazon Linux 2 v4.3.7 running Tomcat 8.5 Corretto 11"
+}
+
 variable "duracloud_instance_class" {
   description = "The instance size of worker ec2 instance class"
   default     = "m5.large"

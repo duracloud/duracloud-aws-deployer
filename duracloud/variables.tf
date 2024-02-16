@@ -10,7 +10,7 @@ variable "duracloud_zip" {
 
 variable "solution_stack" {
   description = "The AWS Solution Stack to use with the Elastic Beanstalk."
-  default     = "64bit Amazon Linux 2 v4.3.7 running Tomcat 8.5 Corretto 11"
+  default     = "64bit Amazon Linux 2023 v5.1.3 running Tomcat 9 Corretto 17"
 }
 
 variable "duracloud_instance_class" {

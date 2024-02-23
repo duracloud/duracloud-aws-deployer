@@ -24,6 +24,11 @@ resource "aws_autoscaling_group" "storage_stats_worker_asg" {
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id, data.aws_subnet.duracloud_c.id, data.aws_subnet.duracloud_d.id]
   max_size             = 1
   min_size             = 0
+  tag {
+    key                 = "Name"
+    value               = "Storage Stats Worker"
+    propagate_at_launch = true
+  }
 }
 
 resource "aws_autoscaling_policy" "storage_stats_worker_scale_up" {

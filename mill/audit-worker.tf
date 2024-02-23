@@ -24,6 +24,11 @@ resource "aws_autoscaling_group" "audit_worker_asg" {
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id, data.aws_subnet.duracloud_c.id, data.aws_subnet.duracloud_d.id]
   max_size             = var.audit_worker_max
   min_size             = 1
+  tag {
+    key                 = "Name"
+    value               = "Audit Worker"
+    propagate_at_launch = true
+  }
 }
 
 resource "aws_autoscaling_policy" "audit_worker_scale_up" {

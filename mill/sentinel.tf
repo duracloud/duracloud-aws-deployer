@@ -22,4 +22,9 @@ resource "aws_autoscaling_group" "sentinel_asg" {
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id, data.aws_subnet.duracloud_c.id, data.aws_subnet.duracloud_d.id]
   max_size             = 1
   min_size             = 1
+  tag {
+    key                 = "Name"
+    value               = "Sentinel"
+    propagate_at_launch = true
+  }
 }

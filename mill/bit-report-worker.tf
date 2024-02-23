@@ -28,6 +28,11 @@ resource "aws_autoscaling_group" "bit_report_worker_asg" {
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id, data.aws_subnet.duracloud_c.id, data.aws_subnet.duracloud_d.id]
   max_size             = 1
   min_size             = 0
+  tag {
+    key                 = "Name"
+    value               = "Bit Report Worker"
+    propagate_at_launch = true
+  }
 }
 
 resource "aws_autoscaling_policy" "bit_report_worker_scale_up" {

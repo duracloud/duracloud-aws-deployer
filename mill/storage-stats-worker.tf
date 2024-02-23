@@ -26,7 +26,7 @@ resource "aws_autoscaling_group" "storage_stats_worker_asg" {
   min_size             = 0
   tag {
     key                 = "Name"
-    value               = "Storage Stats Worker"
+    value               = "${var.stack_name}-storage-stats-worker"
     propagate_at_launch = true
   }
 }

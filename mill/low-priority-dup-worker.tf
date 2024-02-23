@@ -26,7 +26,7 @@ resource "aws_autoscaling_group" "low_priority_dup_worker_asg" {
   min_size             = 0
   tag {
     key                 = "Name"
-    value               = "Low Priority Duplicate Worker"
+    value               = "${var.stack_name}-low-priority-duplicate-worker"
     propagate_at_launch = true
   }
 }

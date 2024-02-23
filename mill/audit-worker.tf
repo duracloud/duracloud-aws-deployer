@@ -26,7 +26,7 @@ resource "aws_autoscaling_group" "audit_worker_asg" {
   min_size             = 1
   tag {
     key                 = "Name"
-    value               = "Audit Worker"
+    value               = "${var.stack_name}-audit-worker"
     propagate_at_launch = true
   }
 }

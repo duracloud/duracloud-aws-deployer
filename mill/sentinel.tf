@@ -24,7 +24,7 @@ resource "aws_autoscaling_group" "sentinel_asg" {
   min_size             = 1
   tag {
     key                 = "Name"
-    value               = "Sentinel"
+    value               = "${var.stack_name}-sentinel"
     propagate_at_launch = true
   }
 }

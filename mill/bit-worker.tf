@@ -26,7 +26,7 @@ resource "aws_autoscaling_group" "bit_worker_asg" {
   min_size             = 0
   tag {
     key                 = "Name"
-    value               = "Bit Worker"
+    value               = "${var.stack_name}-bit-worker"
     propagate_at_launch = true
   }
 }

@@ -24,6 +24,11 @@ resource "aws_autoscaling_group" "low_priority_dup_worker_asg" {
   vpc_zone_identifier  = [data.aws_subnet.duracloud_a.id, data.aws_subnet.duracloud_c.id, data.aws_subnet.duracloud_d.id]
   max_size             = var.low_priority_dup_worker_max
   min_size             = 0
+  tag {
+    key                 = "Name"
+    value               = "${var.stack_name}-low-priority-duplicate-worker"
+    propagate_at_launch = true
+  }
 }
 
 resource "aws_autoscaling_policy" "low_priority_dup_worker_scale_up" {

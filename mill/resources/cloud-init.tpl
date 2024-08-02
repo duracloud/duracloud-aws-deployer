@@ -51,6 +51,7 @@ apt_reboot_if_required: True
 
 # Install additional packages on first boot
 packages:
+ - docker
 
 # run commands
 # runcmd contains a list of either lists or a string
@@ -65,7 +66,9 @@ runcmd:
  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
  - unzip awscliv2.zip
  - ./aws/install
-
+ - systemctl start docker
+ - systemctl enable docker 
+  
 # set the locale
 locale: en_US.UTF-8
 
@@ -85,6 +88,8 @@ Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="user-script"
 
 #!/bin/bash
+
+
 millHome=/root/mill-home
 mkdir -p $millHome
 
@@ -93,6 +98,8 @@ aws s3 cp --recursive s3://${mill_s3_config_location} $millHome/
 
 instanceId=`ls /var/lib/cloud/instances`
 
-docker run -d -it -v /sys/fs/cgroup/:/sys/fs/cgroup:ro --cap-add SYS_ADMIN -e HOST_NAME="${instance_prefix}-${node_type}-$instanceId" -e LOG_LEVEL="${log_level}" -e DOMAIN=${domain} -e NODE_TYPE="${node_type}" -e MAX_WORKER_THREADS="${max_worker_threads}" -e AWS_REGION="${aws_region}" -v $millHome:/mill-home  -v /efs:/efs --name=duracloud-mill  ${mill_docker_container}:${mill_version};
+docker rm -f  duracloud-mill && echo "duracloud-mill removed" || echo "duracloud-mill does not exist, ignoring."
+
+docker run -d --rm -it -v /sys/fs/cgroup/:/sys/fs/cgroup:ro --cap-add SYS_ADMIN -e HOST_NAME="${instance_prefix}-${node_type}-$instanceId" -e LOG_LEVEL="${log_level}" -e DOMAIN=${domain} -e NODE_TYPE="${node_type}" -e MAX_WORKER_THREADS="${max_worker_threads}" -e AWS_REGION="${aws_region}" -v $millHome:/mill-home  -v /efs:/efs --name=duracloud-mill  ${mill_docker_container}:${mill_version};
 
 --===============2205584129673038508==--

@@ -64,7 +64,7 @@ data "aws_ami" "docker_ami" {
 
   filter {
     name   = "name"
-    values = ["aws-elasticbeanstalk-amzn-2018.03.0.x86_64-docker-hvm-*"]
+    values = ["amzn2-ami-kernel-5.*-hvm-2.0.*.1-x86_64-gp2"]
   }
 
   filter {

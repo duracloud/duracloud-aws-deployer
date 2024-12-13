@@ -6,6 +6,7 @@ resource "aws_launch_template" "sentinel_launch_template" {
   vpc_security_group_ids = [aws_security_group.mill_instance.id]
   key_name               = var.ec2_keypair
   user_data              = base64encode(templatefile("${path.module}/resources/cloud-init.tpl", merge(local.cloud_init_props, { node_type = "sentinel" })))
+  update_default_version = true
 
   block_device_mappings {
     device_name = "/dev/sda1"

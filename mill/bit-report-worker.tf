@@ -11,6 +11,7 @@ resource "aws_launch_template" "bit_report_worker_launch_template" {
       node_type          = "bit-report-worker"
       max_worker_threads = var.bit_report_max_worker_threads
   })))
+  update_default_version = true
 
   block_device_mappings {
     device_name = "/dev/sda1"
